@@ -12,7 +12,14 @@ router.get('/', async (req, res) => {
        JOIN usuario u ON m.responsavel_id = u.id
        ORDER BY m.created_at DESC`
     );
-    res.json(rows);
+    // Conversão de BLOB para string (dados_anteriores)
+    const movimentacoes = rows.map(mov => {
+      if (mov.dados_anteriores && Buffer.isBuffer(mov.dados_anteriores)) {
+        mov.dados_anteriores = mov.dados_anteriores.toString('utf8');
+      }
+      return mov;
+    });
+    res.json(movimentacoes);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -29,7 +36,12 @@ router.get('/:id', async (req, res) => {
        WHERE m.id = ?`, [req.params.id]
     );
     if (rows.length === 0) return res.status(404).json({ error: 'Movimentação não encontrada.' });
-    res.json(rows[0]);
+    // Conversão de BLOB para string (dados_anteriores)
+    const mov = rows[0];
+    if (mov.dados_anteriores && Buffer.isBuffer(mov.dados_anteriores)) {
+      mov.dados_anteriores = mov.dados_anteriores.toString('utf8');
+    }
+    res.json(mov);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
