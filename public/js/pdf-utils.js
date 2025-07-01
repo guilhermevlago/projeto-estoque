@@ -42,14 +42,15 @@ async function exportarDashboardParaPDF({ incluirGrafico = false } = {}) {
   }
   y = cardY + 5;
 
-  // Gráfico (opcional)
+  // Gráfico (opcional) - largura reduzida e centralizado
   if (incluirGrafico) {
     const canvas = document.getElementById('canvas-movimentacoes');
     if (canvas) {
       await html2canvas(canvas).then(canvasEl => {
         const imgData = canvasEl.toDataURL('image/png');
-        doc.addImage(imgData, 'PNG', 15, y, 180, 55);
-        y += 60;
+        // width reduzido para 150mm, centralizado na página
+        doc.addImage(imgData, 'PNG', 30, y, 150, 45);
+        y += 50;
       });
     }
   }
@@ -88,13 +89,16 @@ async function exportarDashboardParaPDF({ incluirGrafico = false } = {}) {
   doc.setTextColor(80);
   movs.slice(0, 25).forEach(mov => {
     if (y > 270) { doc.addPage(); y = 18; }
+    // Pequeno espaçamento entre linhas (linha em branco)
+    doc.setDrawColor(240);
+    doc.line(13, y - 2, 197, y - 2);
     doc.text(new Date(mov.created_at).toLocaleDateString('pt-BR'), 15, y);
     doc.text(String(mov.produto_nome || '').substring(0, 25), 38, y);
     doc.text(String(mov.tipo || ''), 98, y);
     doc.text(String(mov.quantidade || ''), 120, y, { align: 'right' });
     doc.text(String(mov.responsavel_nome || '').substring(0, 22), 135, y);
     doc.text(String(mov.observacao || '').substring(0, 22), 175, y);
-    y += 8;
+    y += 9; // aumenta o espaçamento entre as linhas
   });
 
   doc.save('relatorio_dashboard.pdf');
