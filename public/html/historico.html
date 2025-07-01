@@ -130,7 +130,7 @@
         return;
       }
       tbody.innerHTML = lista.map(mov => {
-        const dataObj = new Date(mov.created_at); // ALTERADO
+        const dataObj = new Date(mov.created_at);
         const data = dataObj.toLocaleDateString('pt-BR');
         const hora = dataObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
         let badge = '';
@@ -173,12 +173,12 @@
         const dias = parseInt(periodo, 10);
         const dataLimite = new Date();
         dataLimite.setDate(dataLimite.getDate() - dias);
-        lista = lista.filter(mov => new Date(mov.created_at) >= dataLimite); // ALTERADO
+        lista = lista.filter(mov => new Date(mov.created_at) >= dataLimite);
       } else if (dataInicial && dataFinal) {
         const ini = new Date(dataInicial);
         const fim = new Date(dataFinal);
         lista = lista.filter(mov => {
-          const d = new Date(mov.created_at); // ALTERADO
+          const d = new Date(mov.created_at);
           return d >= ini && d <= fim;
         });
       }
@@ -222,16 +222,22 @@
           html += `<p><strong>Observação:</strong> ${tr.getAttribute('data-observacao') || '-'}</p>`;
         }
         if (tipo === 'edicao') {
+          // --- Bloco melhorado para dados_anteriores ---
           const dadosAnt = tr.getAttribute('data-anterior');
-          if (dadosAnt) {
+          if (dadosAnt && dadosAnt !== 'null' && dadosAnt !== '') {
+            let antObj = null;
             try {
-              const ant = JSON.parse(dadosAnt);
+              antObj = JSON.parse(dadosAnt);
+            } catch {
+              antObj = null;
+            }
+            if (antObj && typeof antObj === 'object') {
               html += `<hr><strong>Dados Anteriores:</strong><ul style="padding-left:18px">`;
-              for (const [k, v] of Object.entries(ant)) {
+              for (const [k, v] of Object.entries(antObj)) {
                 html += `<li><strong>${k.replace(/_/g, ' ')}:</strong> ${v ?? '-'}</li>`;
               }
               html += `</ul>`;
-            } catch {
+            } else {
               html += `<p><strong>Dados Anteriores:</strong> ${dadosAnt}</p>`;
             }
           }
