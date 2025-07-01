@@ -161,7 +161,17 @@
             data-tipo="${mov.tipo || ''}"
             data-motivo="${mov.motivo || ''}"
             data-observacao="${mov.observacao || ''}"
-            data-anterior="${mov.dados_anteriores || ''}"
+            data-sku-anterior="${mov.sku_anterior || ''}"
+            data-nome-anterior="${mov.nome_anterior || ''}"
+            data-descricao-anterior="${mov.descricao_anterior || ''}"
+            data-categoria-anterior="${mov.categoria_anterior || ''}"
+            data-marca-anterior="${mov.marca_anterior || ''}"
+            data-localizacao-fisica-anterior="${mov.localizacao_fisica_anterior || ''}"
+            data-preco-venda-anterior="${mov.preco_venda_anterior || ''}"
+            data-estoque-atual-anterior="${mov.estoque_atual_anterior || ''}"
+            data-estoque-minimo-anterior="${mov.estoque_minimo_anterior || ''}"
+            data-eh-kit-anterior="${mov.eh_kit_anterior || ''}"
+            data-quantidade-por-kit-anterior="${mov.quantidade_por_kit_anterior || ''}"
           >
             <td>${data}</td>
             <td>${hora}</td>
@@ -240,58 +250,19 @@
           html += `<p><strong>Observação:</strong> ${tr.getAttribute('data-observacao') || '-'}</p>`;
         }
         if (tipo === 'edicao') {
-          const dadosAnt = tr.getAttribute('data-anterior');
-          const dadosAntLimpo = (dadosAnt || '').trim();
-          if (
-            dadosAntLimpo &&
-            dadosAntLimpo !== 'null' &&
-            dadosAntLimpo !== '' &&
-            dadosAntLimpo !== '{' &&
-            dadosAntLimpo !== '{}' &&
-            dadosAntLimpo !== '"{}"'
-          ) {
-            let antObj = null;
-            try {
-              antObj = JSON.parse(dadosAntLimpo);
-            } catch {
-              antObj = null;
-            }
-            if (antObj && typeof antObj === 'object' && Object.keys(antObj).length > 0) {
-              html += `<hr>
-                <div class="d-flex justify-content-between align-items-center">
-                  <strong>Dados Anteriores:</strong>
-                  <button type="button" class="btn btn-sm btn-outline-secondary ms-2" id="btnVerDadosAnteriores">
-                    Ver Dados Anteriores
-                  </button>
-                </div>
-                <ul style="padding-left:18px; margin-top:8px;">`;
-              for (const [k, v] of Object.entries(antObj)) {
-                let valor = (v === null || v === '' || typeof v === 'undefined') ? '-' : v;
-                html += `<li><strong>${k.replace(/_/g, ' ')}:</strong> ${valor}</li>`;
-              }
-              html += `</ul>`;
-              setTimeout(() => {
-                const btn = document.getElementById('btnVerDadosAnteriores');
-                if (btn) {
-                  btn.onclick = function() {
-                    let dadosHtml = `<ul style="padding-left:18px;">`;
-                    for (const [k, v] of Object.entries(antObj)) {
-                      let valor = (v === null || v === '' || typeof v === 'undefined') ? '-' : v;
-                      dadosHtml += `<li><strong>${k.replace(/_/g, ' ')}:</strong> ${valor}</li>`;
-                    }
-                    dadosHtml += `</ul>`;
-                    document.getElementById('dados-anteriores-body').innerHTML = dadosHtml;
-                    const modal = new bootstrap.Modal(document.getElementById('modalDadosAnteriores'));
-                    modal.show();
-                  };
-                }
-              }, 100);
-            } else {
-              html += `<hr><strong>Dados Anteriores:</strong> Nenhuma informação anterior registrada.`;
-            }
-          } else {
-            html += `<hr><strong>Dados Anteriores:</strong> Nenhuma informação anterior registrada.`;
-          }
+          html += `<hr><strong>Dados Anteriores:</strong><ul style="padding-left:18px">`;
+          html += `<li><strong>SKU:</strong> ${tr.getAttribute('data-sku-anterior') || '-'}</li>`;
+          html += `<li><strong>Nome:</strong> ${tr.getAttribute('data-nome-anterior') || '-'}</li>`;
+          html += `<li><strong>Descrição:</strong> ${tr.getAttribute('data-descricao-anterior') || '-'}</li>`;
+          html += `<li><strong>Categoria:</strong> ${tr.getAttribute('data-categoria-anterior') || '-'}</li>`;
+          html += `<li><strong>Marca:</strong> ${tr.getAttribute('data-marca-anterior') || '-'}</li>`;
+          html += `<li><strong>Localização Física:</strong> ${tr.getAttribute('data-localizacao-fisica-anterior') || '-'}</li>`;
+          html += `<li><strong>Preço Venda:</strong> ${tr.getAttribute('data-preco-venda-anterior') || '-'}</li>`;
+          html += `<li><strong>Estoque Atual:</strong> ${tr.getAttribute('data-estoque-atual-anterior') || '-'}</li>`;
+          html += `<li><strong>Estoque Mínimo:</strong> ${tr.getAttribute('data-estoque-minimo-anterior') || '-'}</li>`;
+          html += `<li><strong>É Kit:</strong> ${tr.getAttribute('data-eh-kit-anterior') == 1 ? 'Sim' : 'Não'}</li>`;
+          html += `<li><strong>Qtd por Kit:</strong> ${tr.getAttribute('data-quantidade-por-kit-anterior') || '-'}</li>`;
+          html += `</ul>`;
           html += `<p><strong>Observação:</strong> ${tr.getAttribute('data-observacao') || '-'}</p>`;
         }
         document.getElementById('detalhes-modal-body').innerHTML = html;

@@ -12,18 +12,7 @@ router.get('/', async (req, res) => {
        JOIN usuario u ON m.responsavel_id = u.id
        ORDER BY m.created_at DESC`
     );
-    // Conversão de BLOB para string (dados_anteriores)
-    const movimentacoes = rows.map(mov => {
-      if (mov.dados_anteriores && Buffer.isBuffer(mov.dados_anteriores)) {
-        mov.dados_anteriores = mov.dados_anteriores.toString('utf8');
-      }
-      // Garante que sempre seja string JSON
-      if (mov.dados_anteriores === null || mov.dados_anteriores === undefined) {
-        mov.dados_anteriores = '{}';
-      }
-      return mov;
-    });
-    res.json(movimentacoes);
+    res.json(rows);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -40,22 +29,20 @@ router.get('/:id', async (req, res) => {
        WHERE m.id = ?`, [req.params.id]
     );
     if (rows.length === 0) return res.status(404).json({ error: 'Movimentação não encontrada.' });
-    // Conversão de BLOB para string (dados_anteriores)
-    const mov = rows[0];
-    if (mov.dados_anteriores && Buffer.isBuffer(mov.dados_anteriores)) {
-      mov.dados_anteriores = mov.dados_anteriores.toString('utf8');
-    }
-    res.json(mov);
+    res.json(rows[0]);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// Criar movimentação
+// Criar movimentação (exemplo para edição de produto)
 router.post('/', async (req, res) => {
   const {
     produto_id, tipo, quantidade, responsavel_id,
-    motivo, observacao, dados_anteriores
+    motivo, observacao,
+    sku_anterior, nome_anterior, descricao_anterior, categoria_anterior, marca_anterior,
+    localizacao_fisica_anterior, preco_venda_anterior, estoque_atual_anterior, estoque_minimo_anterior,
+    eh_kit_anterior, quantidade_por_kit_anterior
   } = req.body;
   if (!produto_id || !tipo || !quantidade || !responsavel_id) {
     return res.status(400).json({ error: 'Campos obrigatórios não informados.' });
@@ -64,7 +51,7 @@ router.post('/', async (req, res) => {
   try {
     await conn.beginTransaction();
 
-    // Atualiza o estoque do produto
+    // Atualiza o estoque do produto se for entrada/saída
     let sqlEstoque = '';
     if (tipo === 'entrada') {
       sqlEstoque = 'UPDATE produto SET estoque_atual = estoque_atual + ? WHERE id = ?';
@@ -78,9 +65,19 @@ router.post('/', async (req, res) => {
     // Registra a movimentação
     await conn.query(
       `INSERT INTO movimentacao 
-      (produto_id, tipo, quantidade, responsavel_id, motivo, observacao, dados_anteriores)
-      VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [produto_id, tipo, quantidade, responsavel_id, motivo, observacao, dados_anteriores]
+      (produto_id, tipo, quantidade, responsavel_id, motivo, observacao,
+       sku_anterior, nome_anterior, descricao_anterior, categoria_anterior, marca_anterior,
+       localizacao_fisica_anterior, preco_venda_anterior, estoque_atual_anterior, estoque_minimo_anterior,
+       eh_kit_anterior, quantidade_por_kit_anterior)
+      VALUES (?, ?, ?, ?, ?, ?,
+              ?, ?, ?, ?, ?,
+              ?, ?, ?, ?, ?, ?)`,
+      [
+        produto_id, tipo, quantidade, responsavel_id, motivo, observacao,
+        sku_anterior, nome_anterior, descricao_anterior, categoria_anterior, marca_anterior,
+        localizacao_fisica_anterior, preco_venda_anterior, estoque_atual_anterior, estoque_minimo_anterior,
+        eh_kit_anterior, quantidade_por_kit_anterior
+      ]
     );
 
     await conn.commit();
@@ -90,38 +87,6 @@ router.post('/', async (req, res) => {
     res.status(500).json({ error: err.message });
   } finally {
     conn.release();
-  }
-});
-
-// Atualizar movimentação
-router.put('/:id', async (req, res) => {
-  const { id } = req.params;
-  const {
-    produto_id, tipo, quantidade, responsavel_id,
-    motivo, observacao, dados_anteriores
-  } = req.body;
-  if (!produto_id || !tipo || !quantidade || !responsavel_id) {
-    return res.status(400).json({ error: 'Campos obrigatórios não informados.' });
-  }
-  try {
-    await pool.query(
-      `UPDATE movimentacao SET produto_id=?, tipo=?, quantidade=?, responsavel_id=?, motivo=?, observacao=?, dados_anteriores=?
-       WHERE id=?`,
-      [produto_id, tipo, quantidade, responsavel_id, motivo, observacao, dados_anteriores, id]
-    );
-    res.json({ message: 'Movimentação atualizada com sucesso.' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// Excluir movimentação
-router.delete('/:id', async (req, res) => {
-  try {
-    await pool.query('DELETE FROM movimentacao WHERE id=?', [req.params.id]);
-    res.json({ message: 'Movimentação excluída com sucesso.' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
   }
 });
 
