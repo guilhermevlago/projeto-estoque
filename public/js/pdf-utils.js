@@ -42,15 +42,15 @@ async function exportarDashboardParaPDF({ incluirGrafico = false } = {}) {
   }
   y = cardY + 5;
 
-  // Gráfico (opcional) - largura reduzida e centralizado
   if (incluirGrafico) {
     const canvas = document.getElementById('canvas-movimentacoes');
     if (canvas) {
       await html2canvas(canvas).then(canvasEl => {
         const imgData = canvasEl.toDataURL('image/png');
-        // width reduzido para 150mm, centralizado na página
-        doc.addImage(imgData, 'PNG', 30, y, 150, 45);
-        y += 50;
+        const graphSize = 90;
+        const graphX = (210 - graphSize) / 2;
+        doc.addImage(imgData, 'PNG', graphX, y, graphSize, graphSize);
+        y += graphSize + 5;
       });
     }
   }

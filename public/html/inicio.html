@@ -130,9 +130,15 @@
                   <td>${new Date(mov.created_at).toLocaleDateString('pt-BR')}</td>
                   <td>${mov.produto_nome || '-'}</td>
                   <td>
-                    <span class="badge bg-${mov.tipo === 'entrada' ? 'success' : mov.tipo === 'saida' ? 'warning text-dark' : 'secondary'}">
-                      ${mov.tipo.charAt(0).toUpperCase() + mov.tipo.slice(1)}
-                    </span>
+                    ${
+                      mov.tipo === 'entrada'
+                        ? '<span class="badge bg-success">Entrada</span>'
+                        : mov.tipo === 'saida'
+                          ? '<span class="badge bg-danger">Saída</span>'
+                          : mov.tipo === 'edicao'
+                            ? '<span class="badge bg-info text-dark">Edição</span>'
+                            : `<span class="badge bg-primary">${mov.tipo ? mov.tipo.charAt(0).toUpperCase() + mov.tipo.slice(1) : '-'}</span>`
+                    }
                   </td>
                   <td>${mov.quantidade}</td>
                   <td>${mov.responsavel_nome || '-'}</td>
