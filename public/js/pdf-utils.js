@@ -47,10 +47,12 @@ async function exportarDashboardParaPDF({ incluirGrafico = false } = {}) {
     if (canvas) {
       await html2canvas(canvas).then(canvasEl => {
         const imgData = canvasEl.toDataURL('image/png');
-        const graphSize = 90;
-        const graphX = (210 - graphSize) / 2;
-        doc.addImage(imgData, 'PNG', graphX, y, graphSize, graphSize);
-        y += graphSize + 5;
+        // Proporção do canvas: 400x350px ≈ 105x92mm (1px ≈ 0.2646mm)
+        const graphWidth = 105;
+        const graphHeight = 92;
+        const graphX = (210 - graphWidth) / 2; // Centraliza na página A4
+        doc.addImage(imgData, 'PNG', graphX, y, graphWidth, graphHeight);
+        y += graphHeight + 5;
       });
     }
   }
