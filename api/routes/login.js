@@ -14,7 +14,7 @@ router.post('/', async (req, res) => {
     if (rows.length === 0) return res.status(401).json({ error: 'Usuário ou senha inválidos.' });
 
     const user = rows[0];
-    
+    //
     const senhaCorreta = senha === user.senha;
 
     if (!senhaCorreta) return res.status(401).json({ error: 'Usuário ou senha inválidos.' });
