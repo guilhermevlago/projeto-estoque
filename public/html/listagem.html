@@ -210,7 +210,7 @@
           <td>${produto.nome}</td>
           <td>${produto.categoria || '-'}</td>
           <td>${produto.localizacao_fisica || '-'}</td>
-          <td>R$ ${produto.preco_venda ? produto.preco_venda.toLocaleString('pt-BR', {minimumFractionDigits: 2}) : '-'}</td>
+          <td>${formatarMoeda(produto.preco_venda)}</td>
           <td>${produto.estoque_atual ?? '-'}</td>
           <td>
             <a href="#" class="btn btn-sm btn-outline-info me-1 btn-visualizar-produto" title="Visualizar"><i class="bi bi-eye"></i></a>

@@ -10,17 +10,9 @@ document.addEventListener('DOMContentLoaded', () => {
         console.warn('Elemento #navbar-placeholder não encontrado no DOM');
         return;
       }
-      
-      // Insere o HTML da navbar
       placeholder.innerHTML = html;
-
-      // Configuração da Sidebar
       setupSidebar();
-
-      // Configuração do Logout
       setupLogoutButton();
-
-      // Destaque do item ativo
       highlightActiveNavItem();
     })
     .catch(err => console.error('Erro ao carregar navbar:', err));
@@ -55,12 +47,10 @@ function setupSidebar() {
 function setupLogoutButton() {
   const logoutButton = document.getElementById('logout-button');
   if (!logoutButton) return;
-
   logoutButton.addEventListener('click', (event) => {
     event.preventDefault();
     if (confirm('Tem certeza que deseja sair do sistema?')) {
-      localStorage.clear(); // Limpa token, perfil, nome, etc.
-      window.location.href = '../index.html';
+      logout(); // Usa função do utils.js
     }
   });
 }

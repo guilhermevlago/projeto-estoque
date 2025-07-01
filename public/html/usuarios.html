@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Gerenciar Usuários | Sistema de Estoque</title>
+  <script src="../js/utils.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
@@ -95,12 +96,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    // Verifica login e nível
-    const token = localStorage.getItem('token');
-    const perfil = localStorage.getItem('perfil');
-    if (!token || perfil != '3') {
-      window.location.href = 'inicio.html';
-    }
+    // Verifica login e nível usando utils.js
+    verificarLogin({ redirect: 'inicio.html', perfilPermitido: ['3'] });
 
     let usuarios = [];
 
@@ -110,7 +107,7 @@
       tbody.innerHTML = '<tr><td colspan="4">Carregando...</td></tr>';
       try {
         const res = await fetch('https://projeto-estoque-production.up.railway.app/api/usuarios', {
-          headers: { Authorization: 'Bearer ' + token }
+          headers: { Authorization: 'Bearer ' + localStorage.getItem('token') }
         });
         if (res.ok) {
           usuarios = await res.json();
@@ -166,7 +163,7 @@
       document.getElementById('tituloModalUsuario').textContent = 'Adicionar Usuário';
       document.getElementById('formUsuario').reset();
       document.getElementById('usuarioId').value = '';
-      document.getElementById('mensagem-erro').textContent = '';
+      limparMensagens(['mensagem-erro']);
     });
 
     // Abrir modal para editar usuário
@@ -182,7 +179,7 @@
         document.getElementById('perfilUsuario').value = user.perfil;
         document.getElementById('senhaUsuario').value = '';
         document.getElementById('usuarioId').value = user.id;
-        document.getElementById('mensagem-erro').textContent = '';
+        limparMensagens(['mensagem-erro']);
         const modal = new bootstrap.Modal(document.getElementById('modalUsuario'));
         modal.show();
       }
@@ -197,7 +194,7 @@
           try {
             const response = await fetch(`https://projeto-estoque-production.up.railway.app/api/usuarios/${id}`, {
               method: 'DELETE',
-              headers: { 'Authorization': 'Bearer ' + token }
+              headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
             });
             if (response.ok) {
               carregarUsuarios();
@@ -224,7 +221,7 @@
       erroDiv.textContent = '';
 
       if (!nome || !usuario || (!id && !senha) || !perfil) {
-        erroDiv.textContent = 'Preencha todos os campos obrigatórios.';
+        exibirMensagem('mensagem-erro', 'Preencha todos os campos obrigatórios.', 'erro');
         return;
       }
 
@@ -236,7 +233,7 @@
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': 'Bearer ' + token
+              'Authorization': 'Bearer ' + localStorage.getItem('token')
             },
             body: JSON.stringify({ nome, usuario, senha: senha || undefined, perfil })
           });
@@ -246,7 +243,7 @@
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': 'Bearer ' + token
+              'Authorization': 'Bearer ' + localStorage.getItem('token')
             },
             body: JSON.stringify({ nome, usuario, senha, perfil })
           });
@@ -256,10 +253,10 @@
           bootstrap.Modal.getInstance(document.getElementById('modalUsuario')).hide();
           carregarUsuarios();
         } else {
-          erroDiv.textContent = data.error || 'Erro ao salvar usuário.';
+          exibirMensagem('mensagem-erro', data.error || 'Erro ao salvar usuário.', 'erro');
         }
       } catch {
-        erroDiv.textContent = 'Erro ao conectar ao servidor.';
+        exibirMensagem('mensagem-erro', 'Erro ao conectar ao servidor.', 'erro');
       }
     });
 
