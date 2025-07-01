@@ -17,6 +17,10 @@ router.get('/', async (req, res) => {
       if (mov.dados_anteriores && Buffer.isBuffer(mov.dados_anteriores)) {
         mov.dados_anteriores = mov.dados_anteriores.toString('utf8');
       }
+      // Garante que sempre seja string JSON
+      if (mov.dados_anteriores === null || mov.dados_anteriores === undefined) {
+        mov.dados_anteriores = '{}';
+      }
       return mov;
     });
     res.json(movimentacoes);

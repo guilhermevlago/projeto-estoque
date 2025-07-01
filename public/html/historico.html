@@ -241,16 +241,18 @@
         }
         if (tipo === 'edicao') {
           const dadosAnt = tr.getAttribute('data-anterior');
+          const dadosAntLimpo = (dadosAnt || '').trim();
           if (
-            dadosAnt &&
-            dadosAnt !== 'null' &&
-            dadosAnt !== '' &&
-            dadosAnt !== '{' &&
-            dadosAnt !== '{}'
+            dadosAntLimpo &&
+            dadosAntLimpo !== 'null' &&
+            dadosAntLimpo !== '' &&
+            dadosAntLimpo !== '{' &&
+            dadosAntLimpo !== '{}' &&
+            dadosAntLimpo !== '"{}"'
           ) {
             let antObj = null;
             try {
-              antObj = JSON.parse(dadosAnt);
+              antObj = JSON.parse(dadosAntLimpo);
             } catch {
               antObj = null;
             }
