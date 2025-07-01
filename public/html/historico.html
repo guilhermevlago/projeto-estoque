@@ -231,12 +231,14 @@
             } catch {
               antObj = null;
             }
-            if (antObj && typeof antObj === 'object') {
+            if (antObj && typeof antObj === 'object' && Object.keys(antObj).length > 0) {
               html += `<hr><strong>Dados Anteriores:</strong><ul style="padding-left:18px">`;
               for (const [k, v] of Object.entries(antObj)) {
                 html += `<li><strong>${k.replace(/_/g, ' ')}:</strong> ${v ?? '-'}</li>`;
               }
               html += `</ul>`;
+            } else if (antObj && typeof antObj === 'object' && Object.keys(antObj).length === 0) {
+              html += `<hr><strong>Dados Anteriores:</strong> Nenhuma informação anterior registrada.`;
             } else {
               html += `<p><strong>Dados Anteriores:</strong> ${dadosAnt}</p>`;
             }
