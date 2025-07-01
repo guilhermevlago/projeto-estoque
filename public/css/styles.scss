@@ -35,6 +35,10 @@
   box-sizing: border-box;
 }
 
+html, body {
+  height: 100%;
+}
+
 body {
   font-family: 'Roboto', system-ui, -apple-system, sans-serif;
   background-color: var(--cor-fundo);
@@ -61,6 +65,14 @@ h1 {
     border-radius: 2px;
   }
 }
+
+body.d-flex {
+  min-height: 100vh; /* já tem, mas confirma */
+  display: flex;
+  flex-direction: row;
+  margin: 0;
+}
+
 
 a {
   color: var(--cor-primaria);
@@ -216,6 +228,11 @@ a {
   transition: margin 0.2s;
 }
 
+#navbar-placeholder {
+  display: flex;
+  height: 100vh; /* ocupar altura toda da viewport */
+  flex-shrink: 0; /* para não encolher */
+}
 // ===================
 // TABLES
 // ===================

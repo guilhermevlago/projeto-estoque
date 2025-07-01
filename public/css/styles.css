@@ -1,3 +1,4 @@
+@charset "UTF-8";
 :root {
   --cor-primaria: #3436c7;
   --cor-secundaria: #0c007c;
@@ -16,6 +17,10 @@
 *::before,
 *::after {
   box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
 }
 
 body {
@@ -42,6 +47,13 @@ h1::after {
   height: 4px;
   background: var(--cor-primaria);
   border-radius: 2px;
+}
+
+body.d-flex {
+  min-height: 100vh; /* já tem, mas confirma */
+  display: flex;
+  flex-direction: row;
+  margin: 0;
 }
 
 a {
@@ -180,6 +192,12 @@ a:hover {
 #page-content.sidebar-collapsed {
   margin-left: 60px !important;
   transition: margin 0.2s;
+}
+
+#navbar-placeholder {
+  display: flex;
+  height: 100vh; /* ocupar altura toda da viewport */
+  flex-shrink: 0; /* para não encolher */
 }
 
 .table {
