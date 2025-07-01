@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tela de Login</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="./css/styles.css">
+</head>
+<body class="d-flex justify-content-center align-items-center vh-100">
+    <div class="card" style="width: 400px;">
+        <div class="card-body">
+            <h5 class="card-title text-center">Login</h5>
+            <form id="login-form">
+                <div class="mb-3">
+                    <label for="username" class="form-label">Usuário</label>
+                    <input type="text" class="form-control" id="username" required>
+                </div>
+                <div class="mb-3">
+                    <label for="senha" class="form-label">Senha</label>
+                    <input type="password" class="form-control" id="senha" required>
+                </div>
+                <div id="login-erro" class="text-danger mb-2" style="display:none;"></div>
+                <div class="text-end">
+                    <button type="submit" class="btn btn-primary">Entrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('login-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const usuario = document.getElementById('username').value.trim();
+            const senha = document.getElementById('senha').value;
+            const erroDiv = document.getElementById('login-erro');
+            erroDiv.style.display = 'none';
+            erroDiv.textContent = '';
+
+            try {
+                const response = await fetch('http://localhost:3001/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ usuario, senha })
+                });
+                const data = await response.json();
+                if (response.ok && data.token) {
+                    // Salva token e perfil no localStorage
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('perfil', data.perfil);
+                    localStorage.setItem('nome', data.nome);
+                    window.location.href = './html/inicio.html';
+                } else {
+                    erroDiv.textContent = data.error || 'Usuário ou senha inválidos.';
+                    erroDiv.style.display = 'block';
+                }
+            } catch (err) {
+                erroDiv.textContent = 'Erro ao conectar ao servidor.';
+                erroDiv.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

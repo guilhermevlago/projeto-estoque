@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dashboard | Sistema de Estoque</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/styles.css" />
+</head>
+<body class="d-flex" data-page="dashboard">
+  
+  <!-- Sidebar -->
+  <div id="navbar-placeholder"></div>
+  <script src="../js/navbar.js"></script>
+
+  <div id="page-content" class="flex-grow-1 p-4">
+    <h1 class="mb-4">Dashboard Analítico</h1>
+    
+    <div class="row g-4 mb-4" id="dashboard-cards">
+      <!-- Cards do dashboard serão preenchidos via JS -->
+    </div>
+
+    <!-- Gráfico de Movimentações -->
+    <div class="bg-white p-4 rounded-4 shadow-sm mt-4">
+      <h5 class="mb-3 text-center">Movimentações</h5>
+      <div class="chart-container my-4">
+        <div class="filtro-grafico">
+          <label for="filtroPeriodo" class="form-label mb-0">Período:</label>
+          <select id="filtroPeriodo" class="form-select form-select-sm" style="width: auto;">
+            <option value="dia">Dia</option>
+            <option value="semana">Semana</option>
+            <option value="mes" selected>Mês</option>
+            <option value="ano">Ano</option>
+          </select>
+        </div>
+        <canvas id="canvas-movimentacoes" width="400" height="350"></canvas>
+      </div>
+    </div>
+
+    <div class="bg-white p-4 rounded-4 shadow-sm mt-4">
+      <h5 class="mb-3">Relatório</h5>
+      <div class="d-flex align-items-center flex-wrap gap-2 mb-2">
+        <button id="btn-exportar-csv" class="btn btn-outline-secondary btn-sm me-2" title="Exportar como CSV" aria-label="Exportar como CSV">
+          <i class="bi bi-file-earmark-spreadsheet"></i> CSV
+        </button>
+        <button id="btn-exportar-pdf" class="btn btn-outline-secondary btn-sm me-2">
+          <i class="bi bi-file-earmark-pdf"></i> PDF
+        </button>
+        <label class="d-flex align-items-center mb-0 ms-2">
+          <input type="checkbox" id="incluirGrafico" style="margin-right: 8px;" /> Com gráfico
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script>
+    // Verifica login e perfil
+    const token = localStorage.getItem('token');
+    const perfil = localStorage.getItem('perfil');
+    if (!token || perfil == '1') {
+      window.location.href = 'inicio.html';
+    }
+
+    // Dashboard cards
+    async function carregarDashboard() {
+      const cards = [
+        { titulo: 'Produtos Cadastrados', valor: '-', cor: 'primary', link: 'listagem.html', texto: 'Ver Todos' },
+        { titulo: 'Estoque Baixo', valor: '-', cor: 'danger', link: 'listagem.html', texto: 'Ver Detalhes' },
+        { titulo: 'Entradas no Mês', valor: '-', cor: 'success', link: 'historico.html', texto: 'Ver Entradas' },
+        { titulo: 'Saídas no Mês', valor: '-', cor: 'warning', link: 'historico.html', texto: 'Ver Saídas' }
+      ];
+
+      try {
+        // Produtos
+        const resProdutos = await fetch('http://localhost:3001/api/produtos', {
+          headers: { Authorization: 'Bearer ' + token }
+        });
+        if (resProdutos.ok) {
+          const produtos = await resProdutos.json();
+          cards[0].valor = produtos.length;
+          cards[1].valor = produtos.filter(p => p.estoque_atual !== null && p.estoque_minimo !== null && p.estoque_atual <= p.estoque_minimo).length;
+        }
+      } catch {}
+
+      try {
+        // Movimentações
+        const resMov = await fetch('http://localhost:3001/api/movimentacoes', {
+          headers: { Authorization: 'Bearer ' + token }
+        });
+        if (resMov.ok) {
+          const movs = await resMov.json();
+          const mesAtual = new Date().getMonth() + 1;
+          const anoAtual = new Date().getFullYear();
+          cards[2].valor = movs.filter(m => m.tipo === 'entrada' && new Date(m.created_at).getMonth() + 1 === mesAtual && new Date(m.created_at).getFullYear() === anoAtual).length;
+          cards[3].valor = movs.filter(m => m.tipo === 'saida' && new Date(m.created_at).getMonth() + 1 === mesAtual && new Date(m.created_at).getFullYear() === anoAtual).length;
+        }
+      } catch {}
+
+      document.getElementById('dashboard-cards').innerHTML = cards.map(card => `
+        <div class="col-md-6 col-lg-3">
+          <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body text-center">
+              <h5 class="card-title">${card.titulo}</h5>
+              <p class="display-4 text-${card.cor}">${card.valor}</p>
+              <a href="${card.link}" class="btn btn-sm btn-outline-${card.cor}">${card.texto}</a>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Gráfico dinâmico de movimentações
+    let chartMovimentacoes = null;
+
+    async function carregarGraficoMovimentacoes(periodo = 'mes') {
+      const res = await fetch('http://localhost:3001/api/movimentacoes', {
+        headers: { Authorization: 'Bearer ' + token }
+      });
+      if (!res.ok) return;
+
+      const movs = await res.json();
+      const now = new Date();
+      let labels = [], entradas = [], saidas = [];
+
+      if (periodo === 'dia') {
+        labels = Array.from({length: 24}, (_, i) => `${i}:00`);
+        entradas = Array(24).fill(0);
+        saidas = Array(24).fill(0);
+        movs.forEach(mov => {
+          const d = new Date(mov.created_at);
+          if (d.toDateString() === now.toDateString()) {
+            if (mov.tipo === 'entrada') entradas[d.getHours()] += mov.quantidade;
+            if (mov.tipo === 'saida') saidas[d.getHours()] += mov.quantidade;
+          }
+        });
+      } else if (periodo === 'semana') {
+        const dias = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+        labels = dias;
+        entradas = Array(7).fill(0);
+        saidas = Array(7).fill(0);
+        const startOfWeek = new Date(now);
+        startOfWeek.setDate(now.getDate() - now.getDay());
+        movs.forEach(mov => {
+          const d = new Date(mov.created_at);
+          const diff = Math.floor((d - startOfWeek) / (1000 * 60 * 60 * 24));
+          if (diff >= 0 && diff < 7 && d.getFullYear() === now.getFullYear()) {
+            if (mov.tipo === 'entrada') entradas[d.getDay()] += mov.quantidade;
+            if (mov.tipo === 'saida') saidas[d.getDay()] += mov.quantidade;
+          }
+        });
+      } else if (periodo === 'ano') {
+        labels = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+        entradas = Array(12).fill(0);
+        saidas = Array(12).fill(0);
+        movs.forEach(mov => {
+          const d = new Date(mov.created_at);
+          if (d.getFullYear() === now.getFullYear()) {
+            if (mov.tipo === 'entrada') entradas[d.getMonth()] += mov.quantidade;
+            if (mov.tipo === 'saida') saidas[d.getMonth()] += mov.quantidade;
+          }
+        });
+      } else { // mês
+        const diasNoMes = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+        labels = Array.from({length: diasNoMes}, (_, i) => `${i + 1}`);
+        entradas = Array(diasNoMes).fill(0);
+        saidas = Array(diasNoMes).fill(0);
+        movs.forEach(mov => {
+          const d = new Date(mov.created_at);
+          if (d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()) {
+            const dia = d.getDate() - 1;
+            if (mov.tipo === 'entrada') entradas[dia] += mov.quantidade;
+            if (mov.tipo === 'saida') saidas[dia] += mov.quantidade;
+          }
+        });
+      }
+
+      const ctx = document.getElementById('canvas-movimentacoes').getContext('2d');
+      if (chartMovimentacoes) chartMovimentacoes.destroy();
+      chartMovimentacoes = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            { label: 'Entradas', data: entradas, backgroundColor: 'rgba(25, 135, 84, 0.7)', borderColor: '#198754', borderWidth: 1 },
+            { label: 'Saídas', data: saidas, backgroundColor: 'rgba(255, 193, 7, 0.7)', borderColor: '#ffc107', borderWidth: 1 }
+          ]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { position: 'top' },
+            tooltip: { enabled: true }
+          },
+          scales: {
+            x: { grid: { color: '#eee' } },
+            y: { beginAtZero: true, grid: { color: '#eee' } }
+          }
+        }
+      });
+    }
+
+    // Exportar CSV
+    document.getElementById('btn-exportar-csv').addEventListener('click', async () => {
+      const res = await fetch('http://localhost:3001/api/movimentacoes', {
+        headers: { Authorization: 'Bearer ' + token }
+      });
+      if (!res.ok) return alert('Erro ao buscar dados');
+      const movs = await res.json();
+
+      let csv = 'Data,Produto,Tipo,Quantidade,Responsável\n';
+      movs.forEach(mov => {
+        csv += `"${new Date(mov.created_at).toLocaleDateString('pt-BR')}","${mov.produto_nome}","${mov.tipo}","${mov.quantidade}","${mov.responsavel_nome}"\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'relatorio_movimentacoes.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    // Exportar PDF (com ou sem gráfico)
+    document.getElementById('btn-exportar-pdf').addEventListener('click', async () => {
+      const incluirGrafico = document.getElementById('incluirGrafico').checked;
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF('p', 'mm', 'a4');
+      let y = 15;
+
+      doc.setFontSize(16);
+      doc.text('Relatório de Movimentações', 105, y, { align: 'center' });
+      y += 8;
+      doc.setFontSize(10);
+      doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, 10, y);
+      y += 8;
+
+      if (incluirGrafico) {
+        const canvas = document.getElementById('canvas-movimentacoes');
+        await html2canvas(canvas).then(canvasEl => {
+          const imgData = canvasEl.toDataURL('image/png');
+          doc.addImage(imgData, 'PNG', 10, y, 190, 50);
+          y += 55;
+        });
+      }
+
+      // Cabeçalho da tabela
+      doc.setFontSize(11);
+      doc.setFillColor(230, 230, 230);
+      doc.rect(10, y, 190, 8, 'F');
+      doc.text('Data', 12, y + 6);
+      doc.text('Produto', 38, y + 6);
+      doc.text('Tipo', 100, y + 6);
+      doc.text('Qtd', 120, y + 6);
+      doc.text('Responsável', 135, y + 6);
+      y += 10;
+
+      // Dados
+      const res = await fetch('http://localhost:3001/api/movimentacoes', {
+        headers: { Authorization: 'Bearer ' + token }
+      });
+      if (!res.ok) return alert('Erro ao buscar dados');
+      const movs = await res.json();
+
+      doc.setFontSize(10);
+      movs.forEach(mov => {
+        if (y > 280) { doc.addPage(); y = 15; }
+        doc.text(new Date(mov.created_at).toLocaleDateString('pt-BR'), 12, y);
+        doc.text(String(mov.produto_nome || ''), 38, y);
+        doc.text(String(mov.tipo || ''), 100, y);
+        doc.text(String(mov.quantidade || ''), 120, y);
+        doc.text(String(mov.responsavel_nome || ''), 135, y);
+        y += 7;
+      });
+
+      doc.save('relatorio_movimentacoes.pdf');
+    });
+
+    document.getElementById('filtroPeriodo').addEventListener('change', function() {
+      carregarGraficoMovimentacoes(this.value);
+    });
+
+    carregarDashboard();
+    carregarGraficoMovimentacoes();
+  </script>
+</body>
+</html>
