@@ -48,7 +48,7 @@ async function exportarDashboardParaPDF({ incluirGrafico = false } = {}) {
       await html2canvas(canvas).then(canvasEl => {
         const imgData = canvasEl.toDataURL('image/png');
         // Proporção do canvas: 400x350px ≈ 105x92mm (1px ≈ 0.2646mm)
-        const graphWidth = 105;
+        const graphWidth = 110;
         const graphHeight = 92;
         const graphX = (210 - graphWidth) / 2; // Centraliza na página A4
         doc.addImage(imgData, 'PNG', graphX, y, graphWidth, graphHeight);
