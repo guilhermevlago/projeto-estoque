@@ -52,6 +52,7 @@
 
     const nome = localStorage.getItem('nome');
     const perfil = localStorage.getItem('perfil');
+    const token = localStorage.getItem('token'); // <-- Adicione esta linha!
 
     // Exibe boas-vindas
     if (nome) {
@@ -63,13 +64,13 @@
       document.getElementById('dashboard-cards').style.display = 'none';
       document.getElementById('ultimas-movimentacoes').style.display = 'none';
     } else {
-      // Busca dados do dashboard (exemplo simples)
+      // Busca dados do dashboard
       async function carregarDashboard() {
         const cards = [
           { titulo: 'Produtos Cadastrados', valor: '-', cor: 'primary', link: 'listagem.html', texto: 'Ver Todos' },
-          { titulo: 'Estoque Baixo', valor: '-', cor: 'danger', link: '#', texto: 'Ver Detalhes' },
-          { titulo: 'Entradas no Mês', valor: '-', cor: 'success', link: '#', texto: 'Ver Entradas' },
-          { titulo: 'Saídas no Mês', valor: '-', cor: 'warning', link: '#', texto: 'Ver Saídas' }
+          { titulo: 'Estoque Baixo', valor: '-', cor: 'danger', link: 'listagem.html?alerta=1', texto: 'Ver Detalhes' },
+          { titulo: 'Entradas no Mês', valor: '-', cor: 'success', link: 'historico.html?acao=entrada', texto: 'Ver Entradas' },
+          { titulo: 'Saídas no Mês', valor: '-', cor: 'warning', link: 'historico.html?acao=saida', texto: 'Ver Saídas' }
         ];
 
         try {
@@ -119,7 +120,6 @@
           });
           if (res.ok) {
             const movs = await res.json();
-            // Ordena por created_at decrescente e pega as 5 mais recentes
             movs.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
             const ultimas = movs.slice(0, 5);
             if (ultimas.length === 0) {
@@ -151,27 +151,27 @@
       carregarMovimentacoes();
 
       document.getElementById('dashboard-cards').addEventListener('click', function(e) {
-      const btn = e.target.closest('a');
-      if (!btn) return;
+        const btn = e.target.closest('a');
+        if (!btn) return;
 
-      // Estoque Baixo
-      if (btn.textContent.includes('Ver Detalhes')) {
-        window.location.href = 'listagem.html?alerta=1';
-        e.preventDefault();
-      }
+        // Estoque Baixo
+        if (btn.textContent.includes('Ver Detalhes')) {
+          window.location.href = 'listagem.html?alerta=1';
+          e.preventDefault();
+        }
 
-      // Entradas no Mês
-      if (btn.textContent.includes('Ver Entradas')) {
-        window.location.href = 'historico.html?acao=entrada';
-        e.preventDefault();
-      }
+        // Entradas no Mês
+        if (btn.textContent.includes('Ver Entradas')) {
+          window.location.href = 'historico.html?acao=entrada';
+          e.preventDefault();
+        }
 
-      // Saídas no Mês
-      if (btn.textContent.includes('Ver Saídas')) {
-        window.location.href = 'historico.html?acao=saida';
-        e.preventDefault();
-      }
-    });
+        // Saídas no Mês
+        if (btn.textContent.includes('Ver Saídas')) {
+          window.location.href = 'historico.html?acao=saida';
+          e.preventDefault();
+        }
+      });
     }
   </script>
 </body>
