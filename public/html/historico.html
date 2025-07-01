@@ -240,9 +240,14 @@
           html += `<p><strong>Observação:</strong> ${tr.getAttribute('data-observacao') || '-'}</p>`;
         }
         if (tipo === 'edicao') {
-          // --- Bloco melhorado para dados_anteriores com botão ---
           const dadosAnt = tr.getAttribute('data-anterior');
-          if (dadosAnt && dadosAnt !== 'null' && dadosAnt !== '') {
+          if (
+            dadosAnt &&
+            dadosAnt !== 'null' &&
+            dadosAnt !== '' &&
+            dadosAnt !== '{' &&
+            dadosAnt !== '{}'
+          ) {
             let antObj = null;
             try {
               antObj = JSON.parse(dadosAnt);
@@ -263,7 +268,6 @@
                 html += `<li><strong>${k.replace(/_/g, ' ')}:</strong> ${valor}</li>`;
               }
               html += `</ul>`;
-              // Evento do botão para abrir modal grande
               setTimeout(() => {
                 const btn = document.getElementById('btnVerDadosAnteriores');
                 if (btn) {
@@ -280,11 +284,11 @@
                   };
                 }
               }, 100);
-            } else if (antObj && typeof antObj === 'object' && Object.keys(antObj).length === 0) {
-              html += `<hr><strong>Dados Anteriores:</strong> Nenhuma informação anterior registrada.`;
             } else {
-              html += `<p><strong>Dados Anteriores:</strong> ${dadosAnt}</p>`;
+              html += `<hr><strong>Dados Anteriores:</strong> Nenhuma informação anterior registrada.`;
             }
+          } else {
+            html += `<hr><strong>Dados Anteriores:</strong> Nenhuma informação anterior registrada.`;
           }
           html += `<p><strong>Observação:</strong> ${tr.getAttribute('data-observacao') || '-'}</p>`;
         }
