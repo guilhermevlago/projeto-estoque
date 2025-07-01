@@ -95,6 +95,24 @@
     </div>
   </div>
 
+  <!-- Modal Dados Anteriores -->
+  <div class="modal fade" id="modalDadosAnteriores" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Dados Anteriores Completos</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body" id="dados-anteriores-body">
+          <!-- Conteúdo preenchido via JS -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     // Verifica login e perfil usando utils.js
@@ -222,7 +240,7 @@
           html += `<p><strong>Observação:</strong> ${tr.getAttribute('data-observacao') || '-'}</p>`;
         }
         if (tipo === 'edicao') {
-          // --- Bloco melhorado para dados_anteriores ---
+          // --- Bloco melhorado para dados_anteriores com botão ---
           const dadosAnt = tr.getAttribute('data-anterior');
           if (dadosAnt && dadosAnt !== 'null' && dadosAnt !== '') {
             let antObj = null;
@@ -232,12 +250,36 @@
               antObj = null;
             }
             if (antObj && typeof antObj === 'object' && Object.keys(antObj).length > 0) {
-              html += `<hr><strong>Dados Anteriores:</strong><ul style="padding-left:18px">`;
+              html += `<hr>
+                <div class="d-flex justify-content-between align-items-center">
+                  <strong>Dados Anteriores:</strong>
+                  <button type="button" class="btn btn-sm btn-outline-secondary ms-2" id="btnVerDadosAnteriores">
+                    Ver Dados Anteriores
+                  </button>
+                </div>
+                <ul style="padding-left:18px; margin-top:8px;">`;
               for (const [k, v] of Object.entries(antObj)) {
                 let valor = (v === null || v === '' || typeof v === 'undefined') ? '-' : v;
                 html += `<li><strong>${k.replace(/_/g, ' ')}:</strong> ${valor}</li>`;
               }
               html += `</ul>`;
+              // Evento do botão para abrir modal grande
+              setTimeout(() => {
+                const btn = document.getElementById('btnVerDadosAnteriores');
+                if (btn) {
+                  btn.onclick = function() {
+                    let dadosHtml = `<ul style="padding-left:18px;">`;
+                    for (const [k, v] of Object.entries(antObj)) {
+                      let valor = (v === null || v === '' || typeof v === 'undefined') ? '-' : v;
+                      dadosHtml += `<li><strong>${k.replace(/_/g, ' ')}:</strong> ${valor}</li>`;
+                    }
+                    dadosHtml += `</ul>`;
+                    document.getElementById('dados-anteriores-body').innerHTML = dadosHtml;
+                    const modal = new bootstrap.Modal(document.getElementById('modalDadosAnteriores'));
+                    modal.show();
+                  };
+                }
+              }, 100);
             } else if (antObj && typeof antObj === 'object' && Object.keys(antObj).length === 0) {
               html += `<hr><strong>Dados Anteriores:</strong> Nenhuma informação anterior registrada.`;
             } else {
