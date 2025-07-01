@@ -152,27 +152,27 @@
       carregarMovimentacoes();
 
       document.getElementById('dashboard-cards').addEventListener('click', function(e) {
-        const btn = e.target.closest('a');
-        if (!btn) return;
+      const btn = e.target.closest('a');
+      if (!btn) return;
 
-        // Estoque Baixo
-        if (btn.textContent.includes('Ver Detalhes')) {
-          window.location.href = 'listagem.html?alerta=1';
-          e.preventDefault();
-        }
+      // Estoque Baixo
+      if (btn.textContent.includes('Ver Detalhes')) {
+        window.location.href = 'listagem.html?alerta=1';
+        e.preventDefault();
+      }
 
-        // Entradas no Mês
-        if (btn.textContent.includes('Ver Entradas')) {
-          window.location.href = 'historico.html?acao=entrada';
-          e.preventDefault();
-        }
+      // Entradas no Mês
+      if (btn.textContent.includes('Ver Entradas')) {
+        window.location.href = 'historico.html?acao=entrada';
+        e.preventDefault();
+      }
 
-        // Saídas no Mês
-        if (btn.textContent.includes('Ver Saídas')) {
-          window.location.href = 'historico.html?acao=saida';
-          e.preventDefault();
-        }
-      });
+      // Saídas no Mês
+      if (btn.textContent.includes('Ver Saídas')) {
+        window.location.href = 'historico.html?acao=saida';
+        e.preventDefault();
+      }
+    });
     }
   </script>
 </body>

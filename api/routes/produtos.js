@@ -71,11 +71,43 @@ router.put('/:id', autorizar([2, 3]), async (req, res) => {
     preco_venda, estoque_atual, estoque_minimo, eh_kit, quantidade_por_kit
   } = req.body;
   try {
+    // Busca dados atuais do produto
+    const [rows] = await pool.query('SELECT * FROM produto WHERE id=?', [id]);
+    if (!rows.length) return res.status(404).json({ error: 'Produto não encontrado.' });
+    const dadosAnteriores = rows[0];
+
+    // Atualiza o produto
     await pool.query(
       `UPDATE produto SET sku=?, nome=?, descricao=?, categoria=?, marca=?, localizacao_fisica=?, preco_venda=?, estoque_atual=?, estoque_minimo=?, eh_kit=?, quantidade_por_kit=?
       WHERE id=?`,
       [sku, nome, descricao, categoria, marca, localizacao_fisica, preco_venda, estoque_atual, estoque_minimo, eh_kit, quantidade_por_kit, id]
     );
+
+    // Registra movimentação de edição
+    await pool.query(
+      `INSERT INTO movimentacao 
+        (produto_id, tipo, quantidade, responsavel_id, motivo, observacao, dados_anteriores)
+        VALUES (?, 'edicao', ?, ?, 'Edição de produto', '', ?)`,
+      [
+        id,
+        estoque_atual || 0,
+        req.user.id, // O id do usuário logado (vem do middleware auth)
+        JSON.stringify({
+          sku: dadosAnteriores.sku,
+          nome: dadosAnteriores.nome,
+          descricao: dadosAnteriores.descricao,
+          categoria: dadosAnteriores.categoria,
+          marca: dadosAnteriores.marca,
+          localizacao_fisica: dadosAnteriores.localizacao_fisica,
+          preco_venda: dadosAnteriores.preco_venda,
+          estoque_atual: dadosAnteriores.estoque_atual,
+          estoque_minimo: dadosAnteriores.estoque_minimo,
+          eh_kit: dadosAnteriores.eh_kit,
+          quantidade_por_kit: dadosAnteriores.quantidade_por_kit
+        })
+      ]
+    );
+
     res.json({ message: 'Produto atualizado com sucesso.' });
   } catch (err) {
     res.status(500).json({ error: err.message });

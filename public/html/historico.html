@@ -224,7 +224,19 @@
           html += `<p><strong>Observação:</strong> ${tr.getAttribute('data-observacao') || '-'}</p>`;
         }
         if (tipo === 'edicao') {
-          html += `<p><strong>Dados Anteriores:</strong> ${tr.getAttribute('data-anterior') || '-'}</p>`;
+          const dadosAnt = tr.getAttribute('data-anterior');
+          if (dadosAnt) {
+            try {
+              const ant = JSON.parse(dadosAnt);
+              html += `<hr><strong>Dados Anteriores:</strong><ul style="padding-left:18px">`;
+              for (const [k, v] of Object.entries(ant)) {
+                html += `<li><strong>${k.replace(/_/g, ' ')}:</strong> ${v ?? '-'}</li>`;
+              }
+              html += `</ul>`;
+            } catch {
+              html += `<p><strong>Dados Anteriores:</strong> ${dadosAnt}</p>`;
+            }
+          }
           html += `<p><strong>Observação:</strong> ${tr.getAttribute('data-observacao') || '-'}</p>`;
         }
         document.getElementById('detalhes-modal-body').innerHTML = html;
