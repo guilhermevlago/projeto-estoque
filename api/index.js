@@ -8,6 +8,14 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Serve arquivos estáticos na pasta public
+app.use(express.static('public'));
+
+// Rota para página inicial
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/public/index.html');
+});
+
 // Rota de login
 app.use('/api/login', require('./routes/login'));
 
