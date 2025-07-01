@@ -109,7 +109,7 @@
       const tbody = document.querySelector('#tabelaUsuarios tbody');
       tbody.innerHTML = '<tr><td colspan="4">Carregando...</td></tr>';
       try {
-        const res = await fetch('http://localhost:3001/api/usuarios', {
+        const res = await fetch('https://projeto-estoque-production.up.railway.app/api/usuarios', {
           headers: { Authorization: 'Bearer ' + token }
         });
         if (res.ok) {
@@ -195,7 +195,7 @@
         const id = tr.getAttribute('data-id');
         if (confirm('Tem certeza que deseja excluir este usuário?')) {
           try {
-            const response = await fetch(`http://localhost:3001/api/usuarios/${id}`, {
+            const response = await fetch(`https://projeto-estoque-production.up.railway.app/api/usuarios/${id}`, {
               method: 'DELETE',
               headers: { 'Authorization': 'Bearer ' + token }
             });
@@ -232,7 +232,7 @@
         let response, data;
         if (id) {
           // Editar usuário
-          response = await fetch(`http://localhost:3001/api/usuarios/${id}`, {
+          response = await fetch(`https://projeto-estoque-production.up.railway.app/api/usuarios/${id}`, {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
@@ -242,7 +242,7 @@
           });
         } else {
           // Novo usuário
-          response = await fetch('http://localhost:3001/api/usuarios', {
+          response = await fetch('https://projeto-estoque-production.up.railway.app/api/usuarios', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

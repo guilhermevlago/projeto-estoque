@@ -77,7 +77,7 @@
 
       try {
         // Produtos
-        const resProdutos = await fetch('http://localhost:3001/api/produtos', {
+        const resProdutos = await fetch('https://projeto-estoque-production.up.railway.app/api/produtos', {
           headers: { Authorization: 'Bearer ' + token }
         });
         if (resProdutos.ok) {
@@ -89,7 +89,7 @@
 
       try {
         // Movimentações
-        const resMov = await fetch('http://localhost:3001/api/movimentacoes', {
+        const resMov = await fetch('https://projeto-estoque-production.up.railway.app/api/movimentacoes', {
           headers: { Authorization: 'Bearer ' + token }
         });
         if (resMov.ok) {
@@ -118,7 +118,7 @@
     let chartMovimentacoes = null;
 
     async function carregarGraficoMovimentacoes(periodo = 'mes') {
-      const res = await fetch('http://localhost:3001/api/movimentacoes', {
+      const res = await fetch('https://projeto-estoque-production.up.railway.app/api/movimentacoes', {
         headers: { Authorization: 'Bearer ' + token }
       });
       if (!res.ok) return;
@@ -206,7 +206,7 @@
 
     // Exportar CSV
     document.getElementById('btn-exportar-csv').addEventListener('click', async () => {
-      const res = await fetch('http://localhost:3001/api/movimentacoes', {
+      const res = await fetch('https://projeto-estoque-production.up.railway.app/api/movimentacoes', {
         headers: { Authorization: 'Bearer ' + token }
       });
       if (!res.ok) return alert('Erro ao buscar dados');
@@ -261,7 +261,7 @@
       y += 10;
 
       // Dados
-      const res = await fetch('http://localhost:3001/api/movimentacoes', {
+      const res = await fetch('https://projeto-estoque-production.up.railway.app/api/movimentacoes', {
         headers: { Authorization: 'Bearer ' + token }
       });
       if (!res.ok) return alert('Erro ao buscar dados');

@@ -74,7 +74,7 @@
         ];
 
         try {
-          const resProdutos = await fetch('http://localhost:3001/api/produtos', {
+          const resProdutos = await fetch('https://projeto-estoque-production.up.railway.app/api/produtos', {
             headers: { Authorization: 'Bearer ' + token }
           });
           if (resProdutos.ok) {
@@ -85,7 +85,7 @@
         } catch {}
 
         try {
-          const resMov = await fetch('http://localhost:3001/api/movimentacoes', {
+          const resMov = await fetch('https://projeto-estoque-production.up.railway.app/api/movimentacoes', {
             headers: { Authorization: 'Bearer ' + token }
           });
           if (resMov.ok) {
@@ -115,7 +115,7 @@
         const tbody = document.querySelector('#tabela-movimentacoes tbody');
         tbody.innerHTML = '<tr><td colspan="5">Carregando...</td></tr>';
         try {
-          const res = await fetch('http://localhost:3001/api/movimentacoes', {
+          const res = await fetch('https://projeto-estoque-production.up.railway.app/api/movimentacoes', {
             headers: { Authorization: 'Bearer ' + token }
           });
           if (res.ok) {

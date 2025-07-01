@@ -110,7 +110,7 @@
       const tbody = document.querySelector('#tabelaHistorico tbody');
       tbody.innerHTML = '<tr><td colspan="7">Carregando...</td></tr>';
       try {
-        const res = await fetch('http://localhost:3001/api/movimentacoes', {
+        const res = await fetch('https://projeto-estoque-production.up.railway.app/api/movimentacoes', {
           headers: { Authorization: 'Bearer ' + token }
         });
         if (res.ok) {
