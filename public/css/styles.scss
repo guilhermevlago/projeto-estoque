@@ -433,7 +433,7 @@ body.sidebar-collapsed #page-content {
 // ===================
 .dashboard-grafico-pizza {
   min-height: 0;
-  height: 110px; // diminuído
+  height: 110px; // altura pequena
   margin-bottom: 1rem;
   display: flex;
   flex-direction: column;
@@ -449,8 +449,8 @@ body.sidebar-collapsed #page-content {
 }
 #canvas-mais-entradas,
 #canvas-mais-saidas {
-  max-width: 54px; // diminuído
-  height: 54px !important; // diminuído
+  max-width: 54px;
+  height: 54px !important;
   display: block;
   margin: 0 auto;
 }
