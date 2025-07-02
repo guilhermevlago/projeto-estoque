@@ -48,8 +48,8 @@ router.post('/', autorizar([2, 3]), async (req, res) => {
     // Registra movimentação de cadastro
     await pool.query(
       `INSERT INTO movimentacao 
-        (produto_id, tipo, quantidade, responsavel_id, motivo, observacao, dados_anteriores)
-        VALUES (?, 'cadastro', ?, ?, 'Cadastro de produto', '', NULL)`,
+        (produto_id, tipo, quantidade, responsavel_id, motivo, observacao)
+        VALUES (?, 'cadastro', ?, ?, 'Cadastro de produto', '')`,
       [
         novoProdutoId,
         estoque_atual || 0,
