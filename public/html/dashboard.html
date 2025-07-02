@@ -46,19 +46,33 @@
       </div>
       <!-- Gráficos de Pizza -->
       <div class="col-lg-5 d-flex flex-column justify-content-between" style="height: 380px;">
-        <div class="bg-white p-3 rounded-4 shadow-sm mb-3 flex-fill d-flex flex-column align-items-center justify-content-center" style="min-height: 170px;">
-          <h6 class="mb-2 text-center">Produtos com Mais Entradas</h6>
-          <canvas id="canvas-mais-entradas" width="180" height="140"></canvas>
+        <div class="bg-white p-3 rounded-4 shadow-sm mb-3 flex-fill d-flex align-items-center justify-content-center" style="min-height: 170px;">
+          <div class="w-100 d-flex align-items-center">
+            <div style="flex: 0 0 120px;">
+              <canvas id="canvas-mais-entradas" width="120" height="120"></canvas>
+            </div>
+            <div class="ms-3 flex-grow-1">
+              <h6 class="mb-2 text-center">Produtos com Mais Entradas</h6>
+              <ul id="legenda-mais-entradas" class="list-unstyled mb-0 small"></ul>
+            </div>
+          </div>
         </div>
-        <div class="bg-white p-3 rounded-4 shadow-sm flex-fill d-flex flex-column align-items-center justify-content-center" style="min-height: 170px;">
-          <h6 class="mb-2 text-center">Produtos com Mais Saídas</h6>
-          <canvas id="canvas-mais-saidas" width="180" height="140"></canvas>
+        <div class="bg-white p-3 rounded-4 shadow-sm flex-fill d-flex align-items-center justify-content-center" style="min-height: 170px;">
+          <div class="w-100 d-flex align-items-center">
+            <div style="flex: 0 0 120px;">
+              <canvas id="canvas-mais-saidas" width="120" height="120"></canvas>
+            </div>
+            <div class="ms-3 flex-grow-1">
+              <h6 class="mb-2 text-center">Produtos com Mais Saídas</h6>
+              <ul id="legenda-mais-saidas" class="list-unstyled mb-0 small"></ul>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- Relatório no fim da página -->
-    <div class="bg-white p-4 rounded-4 shadow-sm mt-4" style="max-width: 700px; margin: 0 auto;">
+    <div class="bg-white p-4 rounded-4 shadow-sm mt-4 w-100" style="max-width: none;">
       <h5 class="mb-3">Relatório</h5>
       <div class="d-flex align-items-center flex-wrap gap-2 mb-2">
         <button id="btn-exportar-csv" class="btn btn-outline-secondary btn-sm me-2" title="Exportar como CSV" aria-label="Exportar como CSV">
@@ -136,6 +150,18 @@
     let chartMovimentacoes = null;
     let chartMaisEntradas = null;
     let chartMaisSaidas = null;
+
+    function gerarLegendaPizza(elementId, labels, data, colors) {
+      const ul = document.getElementById(elementId);
+      ul.innerHTML = '';
+      labels.forEach((label, i) => {
+        const color = colors[i % colors.length];
+        const value = data[i];
+        const li = document.createElement('li');
+        li.innerHTML = `<span style="display:inline-block;width:14px;height:14px;background:${color};border-radius:3px;margin-right:7px;vertical-align:middle;"></span>${label} <span class="text-muted">(${value})</span>`;
+        ul.appendChild(li);
+      });
+    }
 
     async function carregarGraficoMovimentacoes(periodo = 'mes') {
       const res = await fetch('https://projeto-estoque-production.up.railway.app/api/movimentacoes', {
@@ -227,61 +253,73 @@
         }
       });
 
-      // Gráfico de pizza - Mais Entradas
+      // Gráfico de pizza - Mais Entradas (máx 10, outros agrupados)
       const entradasPorProduto = {};
       filtroMovs.filter(m => m.tipo === 'entrada').forEach(m => {
         entradasPorProduto[m.produto_nome] = (entradasPorProduto[m.produto_nome] || 0) + m.quantidade;
       });
-      const topEntradas = Object.entries(entradasPorProduto)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 6);
+      let entradasArr = Object.entries(entradasPorProduto)
+        .sort((a, b) => b[1] - a[1]);
+      let topEntradas = entradasArr.slice(0, 9);
+      let outrosEntradas = entradasArr.slice(9).reduce((acc, cur) => acc + cur[1], 0);
+      if (outrosEntradas > 0) topEntradas.push(['Outros', outrosEntradas]);
+      const entradasLabels = topEntradas.map(e => e[0]);
+      const entradasData = topEntradas.map(e => e[1]);
+      const entradasColors = [
+        '#198754', '#20c997', '#0dcaf0', '#ffc107', '#fd7e14', '#dc3545', '#6f42c1', '#0d6efd', '#adb5bd', '#343a40'
+      ];
       const ctxEntradas = document.getElementById('canvas-mais-entradas').getContext('2d');
       if (chartMaisEntradas) chartMaisEntradas.destroy();
       chartMaisEntradas = new Chart(ctxEntradas, {
         type: 'pie',
         data: {
-          labels: topEntradas.map(e => e[0]),
+          labels: entradasLabels,
           datasets: [{
-            data: topEntradas.map(e => e[1]),
-            backgroundColor: [
-              '#198754', '#20c997', '#0dcaf0', '#ffc107', '#fd7e14', '#dc3545'
-            ]
+            data: entradasData,
+            backgroundColor: entradasColors
           }]
         },
         options: {
           plugins: {
-            legend: { position: 'bottom' }
+            legend: { display: false }
           }
         }
       });
+      gerarLegendaPizza('legenda-mais-entradas', entradasLabels, entradasData, entradasColors);
 
-      // Gráfico de pizza - Mais Saídas
+      // Gráfico de pizza - Mais Saídas (máx 10, outros agrupados)
       const saidasPorProduto = {};
       filtroMovs.filter(m => m.tipo === 'saida').forEach(m => {
         saidasPorProduto[m.produto_nome] = (saidasPorProduto[m.produto_nome] || 0) + m.quantidade;
       });
-      const topSaidas = Object.entries(saidasPorProduto)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 6);
+      let saidasArr = Object.entries(saidasPorProduto)
+        .sort((a, b) => b[1] - a[1]);
+      let topSaidas = saidasArr.slice(0, 9);
+      let outrosSaidas = saidasArr.slice(9).reduce((acc, cur) => acc + cur[1], 0);
+      if (outrosSaidas > 0) topSaidas.push(['Outros', outrosSaidas]);
+      const saidasLabels = topSaidas.map(e => e[0]);
+      const saidasData = topSaidas.map(e => e[1]);
+      const saidasColors = [
+        '#dc3545', '#fd7e14', '#ffc107', '#0dcaf0', '#20c997', '#198754', '#6f42c1', '#0d6efd', '#adb5bd', '#343a40'
+      ];
       const ctxSaidas = document.getElementById('canvas-mais-saidas').getContext('2d');
       if (chartMaisSaidas) chartMaisSaidas.destroy();
       chartMaisSaidas = new Chart(ctxSaidas, {
         type: 'pie',
         data: {
-          labels: topSaidas.map(e => e[0]),
+          labels: saidasLabels,
           datasets: [{
-            data: topSaidas.map(e => e[1]),
-            backgroundColor: [
-              '#dc3545', '#fd7e14', '#ffc107', '#0dcaf0', '#20c997', '#198754'
-            ]
+            data: saidasData,
+            backgroundColor: saidasColors
           }]
         },
         options: {
           plugins: {
-            legend: { position: 'bottom' }
+            legend: { display: false }
           }
         }
       });
+      gerarLegendaPizza('legenda-mais-saidas', saidasLabels, saidasData, saidasColors);
     }
 
     document.getElementById('btn-exportar-csv').addEventListener('click', async () => {

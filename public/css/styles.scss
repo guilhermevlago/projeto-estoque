@@ -419,10 +419,32 @@ body.sidebar-collapsed #page-content {
 }
 #canvas-mais-entradas,
 #canvas-mais-saidas {
-  max-width: 180px;
-  height: 140px !important;
+  max-width: 120px;
+  height: 120px !important;
   display: block;
   margin: 0 auto;
+}
+
+#legenda-mais-entradas,
+#legenda-mais-saidas {
+  padding-left: 0;
+  margin-bottom: 0;
+  list-style: none;
+  font-size: 0.95em;
+  word-break: break-word;
+}
+#legenda-mais-entradas li,
+#legenda-mais-saidas li {
+  margin-bottom: 2px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Relatório ocupa 100% da largura */
+.bg-white.mt-4.shadow-sm {
+  max-width: none !important;
+  width: 100% !important;
 }
 
 // Responsivo para 1280x720
