@@ -278,7 +278,7 @@ body.sidebar-collapsed #page-content {
 
 .chart-container {
   min-height: 0;
-  height: 520px;
+  height: 494px;
   max-width: 100%;
   display: flex;
   align-items: center;
@@ -291,28 +291,28 @@ body.sidebar-collapsed #page-content {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07);
   width: 100% !important;
   height: 100% !important;
-  max-width: 880px;
+  max-width: 836px;
   min-width: 0;
 }
 
 .dashboard-grafico-mov {
-  height: 560px;
+  height: 532px;
   min-width: 0;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  padding: 2.4rem 2.4rem;
+  padding: 2.28rem 2.28rem;
 }
 
 .col-lg-6.d-flex.flex-column.justifique-content-between {
-  height: 560px;
+  height: 532px;
 }
 
 .dashboard-grafico-pizza {
   min-height: 0;
-  height: 270px;
-  margin-bottom: 2rem;
+  height: 256.5px;
+  margin-bottom: 1.9rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -320,66 +320,32 @@ body.sidebar-collapsed #page-content {
   background: #fff;
   border-radius: var(--borda-radius);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-  padding: 2.4rem;
+  padding: 2.28rem;
 }
 
 .pizza-container {
-  width: 192px;
-  height: 192px;
+  width: 182.4px;
+  height: 182.4px;
   margin: 0 auto;
   position: relative;
 }
 
-.pizza-container canvas {
-  width: 100% !important;
-  height: 100% !important;
-  display: block;
-}
-
-#legenda-mais-entradas,
-#legenda-mais-saidas {
-  padding-left: 0;
-  margin-bottom: 0;
-  list-style: none;
-  font-size: 0.92em;
-  word-break: break-word;
-  flex-grow: 1;
-}
-
-#legenda-mais-entradas li,
-#legenda-mais-saidas li {
-  margin-bottom: 2px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.legenda-pizza-cor {
-  display: inline-block;
-  width: 12px;
-  height: 12px;
-  border-radius: 3px;
-  margin-right: 7px;
-  vertical-align: middle;
-  border: 1px solid #ccc;
-}
-
 @media (max-width: 1400px) {
   .chart-container {
-    max-width: 720px;
+    max-width: 684px;
   }
   #canvas-movimentacoes {
-    max-width: 720px;
+    max-width: 684px;
   }
   #dashboard-cards .small-card {
-    max-width: 112px;
+    max-width: 106.4px;
   }
   .dashboard-grafico-pizza {
-    height: 208px;
+    height: 197.6px;
   }
   .pizza-container {
-    width: 128px;
-    height: 128px;
+    width: 121.6px;
+    height: 121.6px;
   }
 }
 @media (max-width: 991.98px) {
@@ -390,17 +356,17 @@ body.sidebar-collapsed #page-content {
     max-width: 100%;
   }
   #dashboard-cards .small-card {
-    max-width: 88px;
+    max-width: 83.6px;
   }
   .dashboard-grafico-pizza {
     flex-direction: row;
     align-items: flex-start;
-    height: 144px;
-    padding: 1.2rem;
+    height: 136.8px;
+    padding: 1.14rem;
   }
   .pizza-container {
-    width: 80px;
-    height: 80px;
+    width: 76px;
+    height: 76px;
   }
 }
 @media (max-width: 767.98px) {
@@ -408,21 +374,21 @@ body.sidebar-collapsed #page-content {
     max-width: 100%;
   }
   .chart-container {
-    min-height: 208px;
-    height: 208px;
+    min-height: 197.6px;
+    height: 197.6px;
   }
   #canvas-movimentacoes {
     max-width: 100%;
-    height: 128px !important;
+    height: 121.6px !important;
   }
   .dashboard-grafico-pizza {
     flex-direction: column;
     align-items: center;
-    height: 112px;
-    padding: 0.64rem;
+    height: 106.4px;
+    padding: 0.608rem;
   }
   .pizza-container {
-    width: 56px;
-    height: 56px;
+    width: 53.2px;
+    height: 53.2px;
   }
 }/*# sourceMappingURL=styles.css.map */
