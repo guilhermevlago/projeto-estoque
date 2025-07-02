@@ -1,0 +1,38 @@
+export function gerarCSVMovimentacoes(movs) {
+  const header = [
+    'Data',
+    'Produto',
+    'Categoria',
+    'Marca',
+    'Localização',
+    'Tipo',
+    'Quantidade',
+    'Responsável',
+    'Preço de Venda',
+    'Estoque Antes',
+    'Estoque Depois',
+    'Motivo',
+    'Observação'
+  ];
+  let csv = header.join(',') + '\n';
+
+  movs.forEach(mov => {
+    csv += [
+      new Date(mov.created_at).toLocaleDateString('pt-BR'),
+      `"${mov.produto_nome || ''}"`,
+      `"${mov.categoria || ''}"`,
+      `"${mov.marca || ''}"`,
+      `"${mov.localizacao_fisica || ''}"`,
+      mov.tipo,
+      mov.quantidade,
+      `"${mov.responsavel_nome || ''}"`,
+      mov.preco_venda != null ? mov.preco_venda : '',
+      mov.estoque_atual_anterior != null ? mov.estoque_atual_anterior : '',
+      mov.estoque_atual_depois != null ? mov.estoque_atual_depois : '',
+      `"${mov.motivo || ''}"`,
+      `"${mov.observacao || ''}"`
+    ].join(',') + '\n';
+  });
+
+  return csv;
+}

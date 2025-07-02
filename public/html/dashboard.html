@@ -96,6 +96,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="../js/pdf-utils.js"></script>
+  <script type="module" src="../js/csv-utils.js"></script>
   <script>
     verificarLogin({ redirect: 'inicio.html', perfilPermitido: ['2', '3'] });
     const token = localStorage.getItem('token');
@@ -371,10 +372,7 @@
       if (!res.ok) return alert('Erro ao buscar dados');
       const movs = await res.json();
 
-      let csv = 'Data,Produto,Tipo,Quantidade,Responsável\n';
-      movs.forEach(mov => {
-        csv += `"${new Date(mov.created_at).toLocaleDateString('pt-BR')}","${mov.produto_nome}","${mov.tipo}","${mov.quantidade}","${mov.responsavel_nome}"\n`;
-      });
+      const csv = gerarCSVMovimentacoes(movs);
 
       const blob = new Blob([csv], { type: 'text/csv' });
       const url = URL.createObjectURL(blob);
