@@ -18,14 +18,15 @@
   <div id="page-content" class="flex-grow-1 p-4">
     <h1 class="mb-4">Dashboard Analítico</h1>
     
-    <div class="dashboard-flex">
-      <!-- Cards ao lado do gráfico -->
-      <div class="dashboard-cards-col" id="dashboard-cards">
-        <!-- 4 cards via JS -->
-      </div>
-      <div class="dashboard-graph-col">
-        <!-- Gráfico de Movimentações -->
-        <div class="bg-white p-4 rounded-4 shadow-sm">
+    <!-- Cards no topo, igual ao início -->
+    <div class="row g-4 mb-4" id="dashboard-cards">
+      <!-- Cards do dashboard serão preenchidos via JS -->
+    </div>
+
+    <div class="row g-4">
+      <!-- Gráfico de Movimentações -->
+      <div class="col-lg-8">
+        <div class="bg-white p-4 rounded-4 shadow-sm h-100">
           <h5 class="mb-3 text-center">Movimentações</h5>
           <div class="chart-container my-4">
             <div class="filtro-grafico">
@@ -41,20 +42,38 @@
           </div>
         </div>
       </div>
-    </div>
-
-    <div class="bg-white p-4 rounded-4 shadow-sm mt-4">
-      <h5 class="mb-3">Relatório</h5>
-      <div class="d-flex align-items-center flex-wrap gap-2 mb-2">
-        <button id="btn-exportar-csv" class="btn btn-outline-secondary btn-sm me-2" title="Exportar como CSV" aria-label="Exportar como CSV">
-          <i class="bi bi-file-earmark-spreadsheet"></i> CSV
-        </button>
-        <button id="btn-exportar-pdf" class="btn btn-outline-secondary btn-sm me-2">
-          <i class="bi bi-file-earmark-pdf"></i> PDF
-        </button>
-        <label class="d-flex align-items-center mb-0 ms-2">
-          <input type="checkbox" id="incluirGrafico" style="margin-right: 8px;" /> Com gráfico
-        </label>
+      <!-- Relatório ao lado do gráfico -->
+      <div class="col-lg-4">
+        <div class="bg-white p-4 rounded-4 shadow-sm h-100 d-flex flex-column">
+          <h5 class="mb-3">Relatório</h5>
+          <div class="d-flex align-items-center flex-wrap gap-2 mb-3">
+            <button id="btn-exportar-csv" class="btn btn-outline-secondary btn-sm me-2" title="Exportar como CSV" aria-label="Exportar como CSV">
+              <i class="bi bi-file-earmark-spreadsheet"></i> CSV
+            </button>
+            <button id="btn-exportar-pdf" class="btn btn-outline-secondary btn-sm me-2">
+              <i class="bi bi-file-earmark-pdf"></i> PDF
+            </button>
+            <label class="d-flex align-items-center mb-0 ms-2">
+              <input type="checkbox" id="incluirGrafico" style="margin-right: 8px;" /> Com gráfico
+            </label>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover mb-0" id="tabela-movimentacoes">
+              <thead>
+                <tr>
+                  <th>Data</th>
+                  <th>Produto</th>
+                  <th>Tipo</th>
+                  <th>Quantidade</th>
+                  <th>Responsável</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Conteúdo preenchido via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -105,11 +124,13 @@
       } catch {}
 
       document.getElementById('dashboard-cards').innerHTML = cards.map(card => `
-        <div class="dashboard-card card h-100 border-0 shadow-sm">
-          <div class="card-body text-center">
-            <h5 class="card-title">${card.titulo}</h5>
-            <p class="display-4 text-${card.cor}">${card.valor}</p>
-            <a href="${card.link}" class="btn btn-sm btn-outline-${card.cor}">${card.texto}</a>
+        <div class="col-md-6 col-lg-3">
+          <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body text-center">
+              <h5 class="card-title">${card.titulo}</h5>
+              <p class="display-4 text-${card.cor}">${card.valor}</p>
+              <a href="${card.link}" class="btn btn-sm btn-outline-${card.cor}">${card.texto}</a>
+            </div>
           </div>
         </div>
       `).join('');
@@ -232,6 +253,49 @@
       });
     }
 
+    // Preenche tabela de movimentações no relatório
+    async function carregarMovimentacoes() {
+      const tbody = document.querySelector('#tabela-movimentacoes tbody');
+      tbody.innerHTML = '<tr><td colspan="5">Carregando...</td></tr>';
+      try {
+        const res = await fetch('https://projeto-estoque-production.up.railway.app/api/movimentacoes', {
+          headers: { Authorization: 'Bearer ' + token }
+        });
+        if (res.ok) {
+          const movs = await res.json();
+          movs.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+          const ultimas = movs.slice(0, 10);
+          if (ultimas.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center">Nenhuma movimentação encontrada.</td></tr>';
+          } else {
+            tbody.innerHTML = ultimas.map(mov => `
+              <tr>
+                <td>${new Date(mov.created_at).toLocaleDateString('pt-BR')}</td>
+                <td>${mov.produto_nome || '-'}</td>
+                <td>
+                  ${
+                    mov.tipo === 'entrada'
+                      ? '<span class="badge bg-success">Entrada</span>'
+                      : mov.tipo === 'saida'
+                        ? '<span class="badge bg-danger">Saída</span>'
+                        : mov.tipo === 'edicao'
+                          ? '<span class="badge bg-info text-dark">Edição</span>'
+                          : `<span class="badge bg-primary">${mov.tipo ? mov.tipo.charAt(0).toUpperCase() + mov.tipo.slice(1) : '-'}</span>`
+                  }
+                </td>
+                <td>${mov.quantidade}</td>
+                <td>${mov.responsavel_nome || '-'}</td>
+              </tr>
+            `).join('');
+          }
+        } else {
+          tbody.innerHTML = '<tr><td colspan="5" class="text-danger">Erro ao carregar movimentações.</td></tr>';
+        }
+      } catch {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-danger">Erro ao conectar ao servidor.</td></tr>';
+      }
+    }
+
     // Exportar CSV
     document.getElementById('btn-exportar-csv').addEventListener('click', async () => {
       const res = await fetch('https://projeto-estoque-production.up.railway.app/api/movimentacoes', {
@@ -272,6 +336,7 @@
 
     carregarDashboard();
     carregarGraficoMovimentacoes();
+    carregarMovimentacoes();
   </script>
 </body>
 </html>
