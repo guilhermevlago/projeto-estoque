@@ -209,7 +209,9 @@
       }
     });
 
-    // Salvar (adicionar ou editar) usuário
+    const usuario_logado_id = getIdUsuarioLogado(); // Função já existe em utils.js
+
+    // Ao salvar (adicionar ou editar) usuário
     document.getElementById('formUsuario').addEventListener('submit', async function(e) {
       e.preventDefault();
       const id = document.getElementById('usuarioId').value;
@@ -225,6 +227,13 @@
         return;
       }
 
+      // Solicita senha do usuário logado
+      const senha_confirmacao = prompt('Digite sua senha para confirmar a operação:');
+      if (!senha_confirmacao) {
+        exibirMensagem('mensagem-erro', 'Confirmação de senha obrigatória.', 'erro');
+        return;
+      }
+
       try {
         let response, data;
         if (id) {
@@ -235,7 +244,7 @@
               'Content-Type': 'application/json',
               'Authorization': 'Bearer ' + localStorage.getItem('token')
             },
-            body: JSON.stringify({ nome, usuario, senha: senha || undefined, perfil })
+            body: JSON.stringify({ nome, usuario, senha: senha || undefined, perfil, senha_confirmacao, usuario_logado_id })
           });
         } else {
           // Novo usuário
@@ -245,7 +254,7 @@
               'Content-Type': 'application/json',
               'Authorization': 'Bearer ' + localStorage.getItem('token')
             },
-            body: JSON.stringify({ nome, usuario, senha, perfil })
+            body: JSON.stringify({ nome, usuario, senha, perfil, senha_confirmacao, usuario_logado_id })
           });
         }
         data = await response.json();
