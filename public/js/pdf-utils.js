@@ -68,12 +68,18 @@ async function exportarDashboardParaPDF({ incluirGrafico = false } = {}) {
   doc.setFillColor(230, 230, 230);
   doc.rect(12, y, 186, 9, 'F');
   doc.setTextColor(50);
-  doc.text('Data', 15, y + 6);
-  doc.text('Produto', 38, y + 6);
-  doc.text('Tipo', 98, y + 6);
-  doc.text('Qtd', 120, y + 6);
-  doc.text('Responsável', 135, y + 6);
-  doc.text('Obs.', 175, y + 6);
+  doc.text('Data', 13, y + 6);
+  doc.text('Produto', 32, y + 6);
+  doc.text('Categoria', 67, y + 6);
+  doc.text('Marca', 92, y + 6);
+  doc.text('Localização', 117, y + 6);
+  doc.text('Tipo', 142, y + 6);
+  doc.text('Qtd', 155, y + 6);
+  doc.text('Responsável', 167, y + 6);
+  doc.text('Est. Ant.', 192, y + 6);
+  doc.text('Est. Dep.', 210, y + 6);
+  doc.text('Motivo', 228, y + 6);
+  doc.text('Obs.', 250, y + 6);
   y += 11;
 
   // Busca movimentações
@@ -89,18 +95,24 @@ async function exportarDashboardParaPDF({ incluirGrafico = false } = {}) {
 
   doc.setFontSize(10);
   doc.setTextColor(80);
+  // Linhas da tabela
   movs.slice(0, 25).forEach(mov => {
     if (y > 270) { doc.addPage(); y = 18; }
-    // Pequeno espaçamento entre linhas (linha em branco)
     doc.setDrawColor(240);
     doc.line(13, y - 2, 197, y - 2);
-    doc.text(new Date(mov.created_at).toLocaleDateString('pt-BR'), 15, y);
-    doc.text(String(mov.produto_nome || '').substring(0, 25), 38, y);
-    doc.text(String(mov.tipo || ''), 98, y);
-    doc.text(String(mov.quantidade || ''), 120, y, { align: 'right' });
-    doc.text(String(mov.responsavel_nome || '').substring(0, 22), 135, y);
-    doc.text(String(mov.observacao || '').substring(0, 22), 175, y);
-    y += 9; // aumenta o espaçamento entre as linhas
+    doc.text(new Date(mov.created_at).toLocaleDateString('pt-BR'), 13, y);
+    doc.text(String(mov.produto_nome || '').substring(0, 20), 32, y);
+    doc.text(String(mov.categoria || '').substring(0, 15), 67, y);
+    doc.text(String(mov.marca || '').substring(0, 12), 92, y);
+    doc.text(String(mov.localizacao_fisica || '').substring(0, 12), 117, y);
+    doc.text(String(mov.tipo || ''), 142, y);
+    doc.text(String(mov.quantidade || ''), 155, y, { align: 'right' });
+    doc.text(String(mov.responsavel_nome || '').substring(0, 12), 167, y);
+    doc.text(String(mov.estoque_atual_anterior ?? ''), 192, y);
+    doc.text(String(mov.estoque_atual_depois ?? ''), 210, y);
+    doc.text(String(mov.motivo || '').substring(0, 10), 228, y);
+    doc.text(String(mov.observacao || '').substring(0, 10), 250, y);
+    y += 9;
   });
 
   doc.save('relatorio_dashboard.pdf');

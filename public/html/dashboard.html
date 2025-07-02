@@ -78,6 +78,19 @@
     <div class="bg-white p-4 rounded-4 shadow-sm mt-4 w-100 relatorio-dashboard">
       <div class="d-flex align-items-center flex-wrap gap-2 mb-3">
         <h5 class="mb-0 me-3">Gerar relatório</h5>
+        <label class="form-check-label me-2">
+          <input type="checkbox" class="form-check-input me-1" id="relatorio-entrada" checked> Entradas
+        </label>
+        <label class="form-check-label me-2">
+          <input type="checkbox" class="form-check-input me-1" id="relatorio-saida" checked> Saídas
+        </label>
+        <label class="form-check-label me-2">
+          <input type="checkbox" class="form-check-input me-1" id="relatorio-cadastro" checked> Cadastros
+        </label>
+        <label class="form-label mb-0 ms-2">Período:</label>
+        <input type="date" id="relatorio-data-inicio" class="form-control form-control-sm me-2" style="width: 140px;">
+        <span class="mx-1">a</span>
+        <input type="date" id="relatorio-data-fim" class="form-control form-control-sm me-2" style="width: 140px;">
         <button id="btn-exportar-csv" class="btn btn-outline-secondary btn-sm me-2" title="Exportar como CSV" aria-label="Exportar como CSV">
           <i class="bi bi-file-earmark-spreadsheet"></i> CSV
         </button>
@@ -87,6 +100,7 @@
         <label class="d-flex align-items-center mb-0 ms-2">
           <input type="checkbox" id="incluirGrafico" style="margin-right: 8px;" /> Com gráfico
         </label>
+        <span class="text-muted ms-2" style="font-size: 0.95em;">(O gráfico é incluído apenas no PDF)</span>
       </div>
     </div>
   </div>
@@ -373,7 +387,23 @@
       if (!res.ok) return alert('Erro ao buscar dados');
       const movs = await res.json();
 
-      const csv = gerarCSVMovimentacoes(movs);
+      const tipoSelecionados = [];
+      if (document.getElementById('relatorio-entrada').checked) tipoSelecionados.push('entrada');
+      if (document.getElementById('relatorio-saida').checked) tipoSelecionados.push('saida');
+      if (document.getElementById('relatorio-cadastro').checked) tipoSelecionados.push('cadastro');
+
+      const dataInicio = document.getElementById('relatorio-data-inicio').value;
+      const dataFim = document.getElementById('relatorio-data-fim').value;
+
+      let movsFiltrados = movs.filter(mov => {
+        const tipoOk = tipoSelecionados.includes(mov.tipo);
+        let dataOk = true;
+        if (dataInicio) dataOk = dataOk && new Date(mov.created_at) >= new Date(dataInicio);
+        if (dataFim) dataOk = dataOk && new Date(mov.created_at) <= new Date(dataFim + 'T23:59:59');
+        return tipoOk && dataOk;
+      });
+
+      const csv = gerarCSVMovimentacoes(movsFiltrados);
 
       const blob = new Blob([csv], { type: 'text/csv' });
       const url = URL.createObjectURL(blob);
