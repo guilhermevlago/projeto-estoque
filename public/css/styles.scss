@@ -403,7 +403,7 @@ body.sidebar-collapsed #page-content {
 // GRÁFICOS
 .chart-container {
   min-height: 0;
-  height: 270px; // diminuído levemente
+  height: 270px; // altura confortável para o gráfico de barras
   max-width: 100%;
   display: flex;
   align-items: center;
@@ -420,7 +420,7 @@ body.sidebar-collapsed #page-content {
 }
 
 .dashboard-grafico-mov {
-  height: 350px; // diminuído levemente
+  height: 350px; // altura confortável para a box
   min-width: 0;
   display: flex;
   flex-direction: column;
