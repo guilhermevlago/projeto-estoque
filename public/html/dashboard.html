@@ -16,22 +16,34 @@
   <script src="../js/navbar.js"></script>
 
   <div id="page-content" class="flex-grow-1 p-4">
-    <h1 class="mb-4">Dashboard Analítico</h1>
+    <!-- Header com saudação e badge de alerta -->
+    <div class="d-flex flex-wrap align-items-center justify-content-between mb-4">
+      <div>
+        <h1 class="mb-1 fw-bold">Olá, <span id="nome-usuario-dashboard">Usuário</span>!</h1>
+        <div class="text-muted fs-6">Bem-vindo ao painel de controle do estoque</div>
+      </div>
+      <div>
+        <span id="badge-estoque-baixo" class="badge bg-warning text-dark fs-6 d-none">
+          <i class="bi bi-exclamation-triangle-fill me-1"></i>
+          <span id="qtd-estoque-baixo">0</span> produtos com estoque baixo
+        </span>
+      </div>
+    </div>
     
     <!-- Cards menores no topo -->
     <div class="row g-2 mb-3 justify-content-center" id="dashboard-cards">
       <!-- Cards do dashboard serão preenchidos via JS -->
     </div>
 
-    <div class="row g-4 align-items-stretch" style="min-height: 380px;">
+    <div class="row g-4 align-items-stretch">
       <!-- Gráfico de Movimentações -->
       <div class="col-lg-7 d-flex">
-        <div class="bg-white p-3 rounded-4 shadow-sm flex-fill d-flex flex-column justify-content-center align-items-center" style="height: 380px; min-width: 0;">
+        <div class="dashboard-grafico-mov bg-white p-3 rounded-4 shadow-sm flex-fill d-flex flex-column justify-content-center align-items-center">
           <div class="d-flex justify-content-between align-items-center mb-2 w-100 flex-wrap gap-2">
             <h5 class="mb-0 text-center flex-grow-1">Movimentações</h5>
             <div class="filtro-grafico">
               <label for="filtroPeriodo" class="form-label mb-0 me-2">Período:</label>
-              <select id="filtroPeriodo" class="form-select form-select-sm d-inline-block" style="width: auto;">
+              <select id="filtroPeriodo" class="form-select form-select-sm d-inline-block">
                 <option value="dia">Dia</option>
                 <option value="semana">Semana</option>
                 <option value="mes" selected>Mês</option>
@@ -39,16 +51,16 @@
               </select>
             </div>
           </div>
-          <div class="chart-container flex-grow-1 w-100 d-flex align-items-center justify-content-center" style="min-height: 260px;">
+          <div class="chart-container flex-grow-1 w-100 d-flex align-items-center justify-content-center">
             <canvas id="canvas-movimentacoes" width="400" height="260"></canvas>
           </div>
         </div>
       </div>
       <!-- Gráficos de Pizza -->
-      <div class="col-lg-5 d-flex flex-column justify-content-between" style="height: 380px;">
-        <div class="bg-white p-3 rounded-4 shadow-sm mb-3 flex-fill d-flex align-items-center justify-content-center" style="min-height: 170px;">
+      <div class="col-lg-5 dashboard-grafico-pizza-col">
+        <div class="dashboard-grafico-pizza mb-3 w-100">
           <div class="w-100 d-flex align-items-center">
-            <div style="flex: 0 0 120px;">
+            <div class="grafico-pizza-canvas">
               <canvas id="canvas-mais-entradas" width="120" height="120"></canvas>
             </div>
             <div class="ms-3 flex-grow-1">
@@ -57,9 +69,9 @@
             </div>
           </div>
         </div>
-        <div class="bg-white p-3 rounded-4 shadow-sm flex-fill d-flex align-items-center justify-content-center" style="min-height: 170px;">
+        <div class="dashboard-grafico-pizza w-100">
           <div class="w-100 d-flex align-items-center">
-            <div style="flex: 0 0 120px;">
+            <div class="grafico-pizza-canvas">
               <canvas id="canvas-mais-saidas" width="120" height="120"></canvas>
             </div>
             <div class="ms-3 flex-grow-1">
@@ -72,7 +84,7 @@
     </div>
 
     <!-- Relatório no fim da página -->
-    <div class="bg-white p-4 rounded-4 shadow-sm mt-4 w-100" style="max-width: none;">
+    <div class="bg-white p-4 rounded-4 shadow-sm mt-4 w-100 relatorio-dashboard">
       <h5 class="mb-3">Relatório</h5>
       <div class="d-flex align-items-center flex-wrap gap-2 mb-2">
         <button id="btn-exportar-csv" class="btn btn-outline-secondary btn-sm me-2" title="Exportar como CSV" aria-label="Exportar como CSV">
@@ -97,6 +109,12 @@
     verificarLogin({ redirect: 'inicio.html', perfilPermitido: ['2', '3'] });
     const token = localStorage.getItem('token');
 
+    // Saudação dinâmica e badge de alerta
+    document.addEventListener('DOMContentLoaded', () => {
+      const nome = localStorage.getItem('nome') || 'Usuário';
+      document.getElementById('nome-usuario-dashboard').textContent = nome;
+    });
+
     // Dashboard cards
     async function carregarDashboard() {
       const cards = [
@@ -114,7 +132,15 @@
         if (resProdutos.ok) {
           const produtos = await resProdutos.json();
           cards[0].valor = produtos.length;
-          cards[1].valor = produtos.filter(p => p.estoque_atual !== null && p.estoque_minimo !== null && p.estoque_atual <= p.estoque_minimo).length;
+          const qtdBaixo = produtos.filter(p => p.estoque_atual !== null && p.estoque_minimo !== null && p.estoque_atual <= p.estoque_minimo).length;
+          cards[1].valor = qtdBaixo;
+          // Badge de alerta
+          const badge = document.getElementById('badge-estoque-baixo');
+          const qtdSpan = document.getElementById('qtd-estoque-baixo');
+          if (badge && qtdSpan) {
+            qtdSpan.textContent = qtdBaixo;
+            badge.classList.toggle('d-none', qtdBaixo === 0);
+          }
         }
       } catch {}
 
@@ -158,7 +184,7 @@
         const color = colors[i % colors.length];
         const value = data[i];
         const li = document.createElement('li');
-        li.innerHTML = `<span style="display:inline-block;width:14px;height:14px;background:${color};border-radius:3px;margin-right:7px;vertical-align:middle;"></span>${label} <span class="text-muted">(${value})</span>`;
+        li.innerHTML = `<span class="legenda-pizza-cor" style="background:${color};"></span>${label} <span class="text-muted">(${value})</span>`;
         ul.appendChild(li);
       });
     }
