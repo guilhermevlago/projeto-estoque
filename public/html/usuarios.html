@@ -23,8 +23,14 @@
         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalUsuario" id="btnNovoUsuario">
           <i class="bi bi-plus-lg"></i> Novo Usuário
         </button>
-        <div style="min-width: 250px;">
+        <div class="d-flex gap-2 flex-wrap" style="min-width: 400px;">
           <input type="text" class="form-control" id="pesquisarUsuario" placeholder="Pesquisar usuário...">
+          <select class="form-select" id="filtroPerfilUsuario" style="min-width: 140px;">
+            <option value="">Todos os Perfis</option>
+            <option value="1">Nível 1</option>
+            <option value="2">Nível 2</option>
+            <option value="3">Nível 3</option>
+          </select>
         </div>
       </div>
 
@@ -43,6 +49,8 @@
           </tbody>
         </table>
       </div>
+
+      <div id="paginacaoUsuarios" class="mt-3 d-flex justify-content-center"></div>
     </div>
   </div>
 
@@ -145,14 +153,28 @@
       }
     }
 
+    let paginaAtualUsuarios = 1;
+    const itensPorPaginaUsuarios = 10;
+
     // Renderiza tabela de usuários
     function renderizarTabela(lista) {
       const tbody = document.querySelector('#tabelaUsuarios tbody');
+      const paginacao = document.getElementById('paginacaoUsuarios');
       if (!lista.length) {
         tbody.innerHTML = '<tr><td colspan="4" class="text-center">Nenhum usuário encontrado.</td></tr>';
+        paginacao.innerHTML = '';
         return;
       }
-      tbody.innerHTML = lista.map(user => `
+
+      // Paginação
+      const totalPaginas = Math.ceil(lista.length / itensPorPaginaUsuarios);
+      if (paginaAtualUsuarios > totalPaginas) paginaAtualUsuarios = totalPaginas;
+      if (paginaAtualUsuarios < 1) paginaAtualUsuarios = 1;
+      const inicio = (paginaAtualUsuarios - 1) * itensPorPaginaUsuarios;
+      const fim = inicio + itensPorPaginaUsuarios;
+      const pagina = lista.slice(inicio, fim);
+
+      tbody.innerHTML = pagina.map(user => `
         <tr data-id="${user.id}">
           <td>${user.nome}</td>
           <td>${user.usuario}</td>
@@ -167,21 +189,56 @@
           </td>
         </tr>
       `).join('');
+
+      // Renderiza paginação
+      let htmlPaginacao = '';
+      if (totalPaginas > 1) {
+        htmlPaginacao += `<nav><ul class="pagination mb-0">`;
+        htmlPaginacao += `<li class="page-item${paginaAtualUsuarios === 1 ? ' disabled' : ''}">
+          <a class="page-link" href="#" data-pagina="${paginaAtualUsuarios - 1}">&laquo;</a></li>`;
+        for (let i = 1; i <= totalPaginas; i++) {
+          htmlPaginacao += `<li class="page-item${i === paginaAtualUsuarios ? ' active' : ''}">
+            <a class="page-link" href="#" data-pagina="${i}">${i}</a></li>`;
+        }
+        htmlPaginacao += `<li class="page-item${paginaAtualUsuarios === totalPaginas ? ' disabled' : ''}">
+          <a class="page-link" href="#" data-pagina="${paginaAtualUsuarios + 1}">&raquo;</a></li>`;
+        htmlPaginacao += `</ul></nav>`;
+      }
+      paginacao.innerHTML = htmlPaginacao;
+
+      // Evento de clique na paginação
+      paginacao.querySelectorAll('.page-link').forEach(link => {
+        link.onclick = function(e) {
+          e.preventDefault();
+          const pag = parseInt(this.getAttribute('data-pagina'));
+          if (!isNaN(pag) && pag >= 1 && pag <= totalPaginas && pag !== paginaAtualUsuarios) {
+            paginaAtualUsuarios = pag;
+            renderizarTabela(lista);
+          }
+        };
+      });
     }
 
-    // Filtro de busca
-    document.getElementById('pesquisarUsuario').addEventListener('input', function() {
-      const termo = this.value.trim().toLowerCase();
-      if (!termo) {
-        renderizarTabela(usuarios);
-        return;
+    // Filtro de busca e perfil
+    document.getElementById('pesquisarUsuario').addEventListener('input', aplicarFiltrosUsuarios);
+    document.getElementById('filtroPerfilUsuario').addEventListener('change', aplicarFiltrosUsuarios);
+
+    function aplicarFiltrosUsuarios() {
+      const termo = document.getElementById('pesquisarUsuario').value.trim().toLowerCase();
+      const perfil = document.getElementById('filtroPerfilUsuario').value;
+      paginaAtualUsuarios = 1;
+      let filtrados = usuarios;
+      if (termo) {
+        filtrados = filtrados.filter(u =>
+          (u.nome && u.nome.toLowerCase().includes(termo)) ||
+          (u.usuario && u.usuario.toLowerCase().includes(termo))
+        );
       }
-      const filtrados = usuarios.filter(u =>
-        (u.nome && u.nome.toLowerCase().includes(termo)) ||
-        (u.usuario && u.usuario.toLowerCase().includes(termo))
-      );
+      if (perfil) {
+        filtrados = filtrados.filter(u => String(u.perfil) === perfil);
+      }
       renderizarTabela(filtrados);
-    });
+    }
 
     // Abrir modal para novo usuário
     document.getElementById('btnNovoUsuario').addEventListener('click', function() {
