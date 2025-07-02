@@ -377,14 +377,15 @@ body.sidebar-collapsed #page-content {
 #dashboard-cards .card {
   min-width: 0;
   margin-bottom: 0;
-  padding: 0.25rem 0.25rem;
+  padding: 0.15rem 0.15rem; // diminuído
   border-radius: 0.75rem;
+  height: 90px; // altura reduzida
 }
 #dashboard-cards .card-body {
-  padding: 0.5rem 0.25rem;
+  padding: 0.3rem 0.15rem; // diminuído
 }
 #dashboard-cards .h5 {
-  font-size: 1.2rem;
+  font-size: 1.1rem; // levemente menor
   font-weight: 700;
 }
 #dashboard-cards .btn-xs {
