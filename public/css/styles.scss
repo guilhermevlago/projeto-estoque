@@ -361,7 +361,7 @@ a {
 .dashboard-grafico-pizza {
   min-height: 0;
   height: 255px;
-  margin-bottom: 1.9rem;
+  margin-bottom: 10px; // diminui o espaçamento entre os gráficos de pizza
   display: flex;
   flex-direction: column;
   align-items: center;
