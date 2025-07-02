@@ -243,10 +243,10 @@ a {
   transition: margin 0.2s;
   min-height: 100vh;
   background: #f8f9fa;
-  margin-left: 260px; // igual ao sidebar
-  margin-right: 0;   // remove qualquer margin extra à direita
-  margin-top: 0;     // remove qualquer margin extra acima
-  margin-bottom: 0;  // remove qualquer margin extra abaixo
+  margin-left: 0; // removido o deslocamento lateral
+  margin-right: 0;
+  margin-top: 0;
+  margin-bottom: 0;
 }
 
 @media (max-width: 991.98px) {
@@ -424,4 +424,8 @@ a {
 
 .relatorio-dashboard {
   margin: 5px !important;
+}
+
+#mais-entradas-container {
+  margin: 0 !important; // remove qualquer margin do container "mais entradas"
 }
