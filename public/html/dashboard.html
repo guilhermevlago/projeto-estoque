@@ -250,6 +250,7 @@
       const ul = document.getElementById(elementId);
       ul.innerHTML = '';
       labels.forEach((label, i) => {
+        // Usa a cor exata do dataset
         const color = colors[i % colors.length];
         const value = data[i];
         const li = document.createElement('li');
