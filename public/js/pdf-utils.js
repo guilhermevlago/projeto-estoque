@@ -15,33 +15,6 @@ async function exportarDashboardParaPDF({ incluirGrafico = false } = {}) {
   doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, 105, y, { align: 'center' });
   y += 10;
 
-  // Cards do dashboard em duas colunas
-  doc.setFontSize(12);
-  doc.setTextColor(30);
-  const cards = document.querySelectorAll('#dashboard-cards .card');
-  let cardData = [];
-  cards.forEach(card => {
-    const titulo = card.querySelector('.card-title')?.textContent || '';
-    const valor = card.querySelector('.display-4')?.textContent || '';
-    cardData.push({ titulo, valor });
-  });
-  // Exibe em duas colunas
-  let cardX1 = 20, cardX2 = 110, cardY = y;
-  for (let i = 0; i < cardData.length; i += 2) {
-    doc.setFont(undefined, 'bold');
-    doc.text(cardData[i].titulo + ':', cardX1, cardY);
-    doc.setFont(undefined, 'normal');
-    doc.text(String(cardData[i].valor), cardX1 + 50, cardY);
-    if (cardData[i + 1]) {
-      doc.setFont(undefined, 'bold');
-      doc.text(cardData[i + 1].titulo + ':', cardX2, cardY);
-      doc.setFont(undefined, 'normal');
-      doc.text(String(cardData[i + 1].valor), cardX2 + 50, cardY);
-    }
-    cardY += 8;
-  }
-  y = cardY + 5;
-
   if (incluirGrafico) {
     const canvas = document.getElementById('canvas-movimentacoes');
     if (canvas) {
