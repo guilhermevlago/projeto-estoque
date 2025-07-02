@@ -227,12 +227,18 @@ a {
   box-shadow: 0 2px 8px rgba(67,97,238,0.10);
   transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.15s;
 
-  &:hover, &:focus {
+  &:hover {
     background: var(--cor-primaria);
     color: var(--cor-aviso);
-    outline: none;
+    transform: scale(1.08);
     box-shadow: 0 4px 16px rgba(67,97,238,0.18);
-    transform: scale(1.08); // leve expansão
+  }
+  &:focus:not(:hover) {
+    background: transparent;
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(67,97,238,0.10);
+    transform: none;
+    outline: none;
   }
 }
 
