@@ -244,6 +244,9 @@ a {
   min-height: 100vh;
   background: #f8f9fa;
   margin-left: 260px; // igual ao sidebar
+  margin-right: 0;   // remove qualquer margin extra à direita
+  margin-top: 0;     // remove qualquer margin extra acima
+  margin-bottom: 0;  // remove qualquer margin extra abaixo
 }
 
 @media (max-width: 991.98px) {
@@ -417,4 +420,8 @@ a {
     width: 50px;
     height: 50px;
   }
+}
+
+.relatorio-dashboard {
+  margin: 5px !important;
 }
