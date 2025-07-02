@@ -381,7 +381,7 @@ body.sidebar-collapsed #page-content {
 
 .dashboard-card {
   min-width: 0;
-  margin-bottom: 0; // remove margin para grid
+  margin-bottom: 0;
 }
 
 .dashboard-graph-col {
@@ -392,19 +392,19 @@ body.sidebar-collapsed #page-content {
   justify-content: stretch;
 }
 
-// Responsivo: empilha cards e gráfico em telas pequenas
-@media (max-width: 1200px) {
+/* Só empilha em telas realmente pequenas */
+@media (max-width: 900px) {
   .dashboard-flex {
     flex-direction: column;
   }
   .dashboard-cards-col {
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto auto;
     max-width: 100%;
     margin-bottom: 2rem;
   }
 }
-@media (max-width: 767.98px) {
+
+/* Cards empilhados só em mobile */
+@media (max-width: 600px) {
   .dashboard-cards-col {
     grid-template-columns: 1fr;
     grid-template-rows: repeat(4, auto);
