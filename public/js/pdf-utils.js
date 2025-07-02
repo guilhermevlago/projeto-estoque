@@ -45,15 +45,13 @@ async function exportarDashboardParaPDF({ incluirGrafico = false } = {}) {
   if (incluirGrafico) {
     const canvas = document.getElementById('canvas-movimentacoes');
     if (canvas) {
-      await html2canvas(canvas).then(canvasEl => {
-        const imgData = canvasEl.toDataURL('image/png');
-        // Proporção do canvas: 400x350px ≈ 105x92mm (1px ≈ 0.2646mm)
-        const graphWidth = 125;
-        const graphHeight = 80;
-        const graphX = (210 - graphWidth) / 2; // Centraliza na página A4
-        doc.addImage(imgData, 'PNG', graphX, y, graphWidth, graphHeight);
-        y += graphHeight + 5;
-      });
+      // Usa o próprio canvas, não precisa do html2canvas
+      const imgData = canvas.toDataURL('image/png');
+      const graphWidth = 125;
+      const graphHeight = 80;
+      const graphX = (210 - graphWidth) / 2; // Centraliza na página A4
+      doc.addImage(imgData, 'PNG', graphX, y, graphWidth, graphHeight);
+      y += graphHeight + 5;
     }
   }
 
