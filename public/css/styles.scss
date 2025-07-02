@@ -351,18 +351,22 @@ body.sidebar-collapsed #page-content {
 }
 
 .dashboard-grafico-mov {
-  height: 410px; // aumentado
+  height: 420px; // igual à soma dos dois gráficos de pizza + margens
   min-width: 0;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
-  padding: 1.5rem 1.5rem; // aumentado
+  padding: 1.5rem 1.5rem;
+}
+
+.col-lg-6.d-flex.flex-column.justify-content-between {
+  height: 420px; // igual ao .dashboard-grafico-mov
 }
 
 .dashboard-grafico-pizza {
   min-height: 0;
-  height: 200px; // aumentado
+  height: 200px;
   margin-bottom: 1.5rem;
   display: flex;
   flex-direction: column;

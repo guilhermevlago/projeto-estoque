@@ -296,13 +296,17 @@ body.sidebar-collapsed #page-content {
 }
 
 .dashboard-grafico-mov {
-  height: 410px;
+  height: 420px;
   min-width: 0;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   padding: 1.5rem 1.5rem;
+}
+
+.col-lg-6.d-flex.flex-column.justify-content-between {
+  height: 420px;
 }
 
 .dashboard-grafico-pizza {
