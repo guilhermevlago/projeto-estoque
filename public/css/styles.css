@@ -388,6 +388,11 @@ a:hover {
 }
 .relatorio-dashboard {
   margin: 5px !important;
+  margin-bottom: 0 !important;
+}
+
+.dashboard-graficos, .dashboard-grafico-mov, .dashboard-grafico-pizza {
+  margin-top: 10px !important;
 }
 
 #mais-entradas-container {

@@ -424,6 +424,12 @@ a {
 
 .relatorio-dashboard {
   margin: 5px !important;
+  margin-bottom: 0 !important; // diminui a distância para os gráficos abaixo
+}
+
+// Se o container de gráficos tiver margin-top, diminua também:
+.dashboard-graficos, .dashboard-grafico-mov, .dashboard-grafico-pizza {
+  margin-top: 10px !important; // ajuste conforme necessário para menor espaçamento
 }
 
 #mais-entradas-container {
