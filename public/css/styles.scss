@@ -107,7 +107,7 @@ a {
 // ===================
 #sidebar {
   min-width: 220px;
-  max-width: 260px;
+  max-width: 220px;
   width: 100%;
   background: var(--cor-primaria);
   color: white;
@@ -243,7 +243,7 @@ a {
   transition: margin 0.2s;
   min-height: 100vh;
   background: #f8f9fa;
-  margin-left: 260px; // igual ao max-width do #sidebar
+  margin-left: 220px; // igual ao sidebar
 }
 
 @media (max-width: 991.98px) {

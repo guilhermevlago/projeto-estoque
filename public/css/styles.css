@@ -82,7 +82,7 @@ a:hover {
 
 #sidebar {
   min-width: 220px;
-  max-width: 260px;
+  max-width: 220px;
   width: 100%;
   background: var(--cor-primaria);
   color: white;
@@ -201,7 +201,7 @@ a:hover {
   transition: margin 0.2s;
   min-height: 100vh;
   background: #f8f9fa;
-  margin-left: 260px;
+  margin-left: 220px;
 }
 
 @media (max-width: 991.98px) {
