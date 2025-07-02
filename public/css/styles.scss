@@ -417,34 +417,16 @@ body.sidebar-collapsed #page-content {
   max-width: 480px;
   min-width: 0;
 }
-#canvas-mais-entradas,
-#canvas-mais-saidas {
-  max-width: 54px;
-  height: 54px !important;
-  display: block;
-  margin: 0 auto;
-}
 
-#legenda-mais-entradas,
-#legenda-mais-saidas {
-  padding-left: 0;
-  margin-bottom: 0;
-  list-style: none;
-  font-size: 0.92em;
-  word-break: break-word;
-}
-#legenda-mais-entradas li,
-#legenda-mais-saidas li {
-  margin-bottom: 2px;
+// Removidos: #canvas-mais-entradas, #canvas-mais-saidas, #legenda-mais-entradas, #legenda-mais-saidas, .dashboard-grafico-pizza, .grafico-pizza-canvas, .legenda-pizza-cor
+
+.dashboard-grafico-mov {
+  height: 180px;
+  min-width: 0;
   display: flex;
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  gap: 4px;
-}
-
-/* Relatório ocupa 100% da largura */
-.bg-white.mt-4.shadow-sm {
-  max-width: none !important;
-  width: 100% !important;
 }
 
 // Responsivo para 1280x720
@@ -464,46 +446,4 @@ body.sidebar-collapsed #page-content {
   #dashboard-cards .small-card { max-width: 100%; }
   .chart-container { min-height: 120px; height: 120px; }
   #canvas-movimentacoes, #canvas-mais-entradas, #canvas-mais-saidas { max-width: 100%; height: 80px !important; }
-}
-
-.dashboard-grafico-mov {
-  height: 180px; // aumentado
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-.dashboard-grafico-pizza {
-  min-height: 0;
-  height: 170px; // aumentado
-  margin-bottom: 1rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: #fff;
-  border-radius: var(--borda-radius);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.07);
-  padding: 0.5rem 1rem;
-}
-.dashboard-grafico-pizza:last-child {
-  margin-bottom: 0;
-}
-
-.grafico-pizza-canvas {
-  flex: 0 0 120px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.legenda-pizza-cor {
-  display: inline-block;
-  width: 12px;
-  height: 12px;
-  border-radius: 3px;
-  margin-right: 7px;
-  vertical-align: middle;
 }

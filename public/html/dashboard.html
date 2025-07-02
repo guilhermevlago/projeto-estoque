@@ -49,23 +49,6 @@
           </div>
         </div>
       </div>
-      <!-- Gráficos de Pizza (Entradas em cima, Saídas embaixo) -->
-      <div class="col-lg-3 d-flex flex-column justify-content-between">
-        <div class="dashboard-grafico-pizza bg-white p-3 rounded-4 shadow-sm flex-fill d-flex flex-column align-items-center mb-3" style="height: 120px; min-height: 0;">
-          <h6 class="mb-2 text-center">Produtos com Mais Entradas</h6>
-          <div class="d-flex align-items-center w-100">
-            <canvas id="canvas-mais-entradas"></canvas>
-            <ul id="legenda-mais-entradas" class="list-unstyled mb-0 small ms-3"></ul>
-          </div>
-        </div>
-        <div class="dashboard-grafico-pizza bg-white p-3 rounded-4 shadow-sm flex-fill d-flex flex-column align-items-center" style="height: 120px; min-height: 0;">
-          <h6 class="mb-2 text-center">Produtos com Mais Saídas</h6>
-          <div class="d-flex align-items-center w-100">
-            <canvas id="canvas-mais-saidas"></canvas>
-            <ul id="legenda-mais-saidas" class="list-unstyled mb-0 small ms-3"></ul>
-          </div>
-        </div>
-      </div>
     </div>
 
     <!-- Relatório no fim da página -->
@@ -151,20 +134,6 @@
 
     // Gráfico dinâmico de movimentações
     let chartMovimentacoes = null;
-    let chartMaisEntradas = null;
-    let chartMaisSaidas = null;
-
-    function gerarLegendaPizza(elementId, labels, data, colors) {
-      const ul = document.getElementById(elementId);
-      ul.innerHTML = '';
-      labels.forEach((label, i) => {
-        const color = colors[i % colors.length];
-        const value = data[i];
-        const li = document.createElement('li');
-        li.innerHTML = `<span class="legenda-pizza-cor" style="background:${color};"></span>${label} <span class="text-muted">(${value})</span>`;
-        ul.appendChild(li);
-      });
-    }
 
     async function carregarGraficoMovimentacoes(periodo = 'mes') {
       const res = await fetch('https://projeto-estoque-production.up.railway.app/api/movimentacoes', {
@@ -176,18 +145,16 @@
       const now = new Date();
       let labels = [], entradas = [], saidas = [];
 
-      // Filtros para pizza
-      let filtroMovs = [];
       if (periodo === 'dia') {
         labels = Array.from({length: 24}, (_, i) => `${i}:00`);
         entradas = Array(24).fill(0);
         saidas = Array(24).fill(0);
-        filtroMovs = movs.filter(mov => new Date(mov.created_at).toDateString() === now.toDateString());
-        filtroMovs.forEach(mov => {
-          const d = new Date(mov.created_at);
-          if (mov.tipo === 'entrada') entradas[d.getHours()] += mov.quantidade;
-          if (mov.tipo === 'saida') saidas[d.getHours()] += mov.quantidade;
-        });
+        movs.filter(mov => new Date(mov.created_at).toDateString() === now.toDateString())
+          .forEach(mov => {
+            const d = new Date(mov.created_at);
+            if (mov.tipo === 'entrada') entradas[d.getHours()] += mov.quantidade;
+            if (mov.tipo === 'saida') saidas[d.getHours()] += mov.quantidade;
+          });
       } else if (periodo === 'semana') {
         const dias = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
         labels = dias;
@@ -195,12 +162,11 @@
         saidas = Array(7).fill(0);
         const startOfWeek = new Date(now);
         startOfWeek.setDate(now.getDate() - now.getDay());
-        filtroMovs = movs.filter(mov => {
+        movs.filter(mov => {
           const d = new Date(mov.created_at);
           const diff = Math.floor((d - startOfWeek) / (1000 * 60 * 60 * 24));
           return diff >= 0 && diff < 7 && d.getFullYear() === now.getFullYear();
-        });
-        filtroMovs.forEach(mov => {
+        }).forEach(mov => {
           const d = new Date(mov.created_at);
           if (mov.tipo === 'entrada') entradas[d.getDay()] += mov.quantidade;
           if (mov.tipo === 'saida') saidas[d.getDay()] += mov.quantidade;
@@ -209,22 +175,21 @@
         labels = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
         entradas = Array(12).fill(0);
         saidas = Array(12).fill(0);
-        filtroMovs = movs.filter(mov => new Date(mov.created_at).getFullYear() === now.getFullYear());
-        filtroMovs.forEach(mov => {
-          const d = new Date(mov.created_at);
-          if (mov.tipo === 'entrada') entradas[d.getMonth()] += mov.quantidade;
-          if (mov.tipo === 'saida') saidas[d.getMonth()] += mov.quantidade;
-        });
+        movs.filter(mov => new Date(mov.created_at).getFullYear() === now.getFullYear())
+          .forEach(mov => {
+            const d = new Date(mov.created_at);
+            if (mov.tipo === 'entrada') entradas[d.getMonth()] += mov.quantidade;
+            if (mov.tipo === 'saida') saidas[d.getMonth()] += mov.quantidade;
+          });
       } else { // mês
         const diasNoMes = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
         labels = Array.from({length: diasNoMes}, (_, i) => `${i + 1}`);
         entradas = Array(diasNoMes).fill(0);
         saidas = Array(diasNoMes).fill(0);
-        filtroMovs = movs.filter(mov => {
+        movs.filter(mov => {
           const d = new Date(mov.created_at);
           return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-        });
-        filtroMovs.forEach(mov => {
+        }).forEach(mov => {
           const d = new Date(mov.created_at);
           if (mov.tipo === 'entrada') entradas[d.getDate() - 1] += mov.quantidade;
           if (mov.tipo === 'saida') saidas[d.getDate() - 1] += mov.quantidade;
@@ -255,74 +220,6 @@
           }
         }
       });
-
-      // Gráfico de pizza - Mais Entradas (máx 10, outros agrupados)
-      const entradasPorProduto = {};
-      filtroMovs.filter(m => m.tipo === 'entrada').forEach(m => {
-        entradasPorProduto[m.produto_nome] = (entradasPorProduto[m.produto_nome] || 0) + m.quantidade;
-      });
-      let entradasArr = Object.entries(entradasPorProduto)
-        .sort((a, b) => b[1] - a[1]);
-      let topEntradas = entradasArr.slice(0, 9);
-      let outrosEntradas = entradasArr.slice(9).reduce((acc, cur) => acc + cur[1], 0);
-      if (outrosEntradas > 0) topEntradas.push(['Outros', outrosEntradas]);
-      const entradasLabels = topEntradas.map(e => e[0]);
-      const entradasData = topEntradas.map(e => e[1]);
-      const entradasColors = [
-        '#198754', '#20c997', '#0dcaf0', '#ffc107', '#fd7e14', '#dc3545', '#6f42c1', '#0d6efd', '#adb5bd', '#343a40'
-      ];
-      const ctxEntradas = document.getElementById('canvas-mais-entradas').getContext('2d');
-      if (chartMaisEntradas) chartMaisEntradas.destroy();
-      chartMaisEntradas = new Chart(ctxEntradas, {
-        type: 'pie',
-        data: {
-          labels: entradasLabels,
-          datasets: [{
-            data: entradasData,
-            backgroundColor: entradasColors
-          }]
-        },
-        options: {
-          plugins: {
-            legend: { display: false }
-          }
-        }
-      });
-      gerarLegendaPizza('legenda-mais-entradas', entradasLabels, entradasData, entradasColors);
-
-      // Gráfico de pizza - Mais Saídas (máx 10, outros agrupados)
-      const saidasPorProduto = {};
-      filtroMovs.filter(m => m.tipo === 'saida').forEach(m => {
-        saidasPorProduto[m.produto_nome] = (saidasPorProduto[m.produto_nome] || 0) + m.quantidade;
-      });
-      let saidasArr = Object.entries(saidasPorProduto)
-        .sort((a, b) => b[1] - a[1]);
-      let topSaidas = saidasArr.slice(0, 9);
-      let outrosSaidas = saidasArr.slice(9).reduce((acc, cur) => acc + cur[1], 0);
-      if (outrosSaidas > 0) topSaidas.push(['Outros', outrosSaidas]);
-      const saidasLabels = topSaidas.map(e => e[0]);
-      const saidasData = topSaidas.map(e => e[1]);
-      const saidasColors = [
-        '#dc3545', '#fd7e14', '#ffc107', '#0dcaf0', '#20c997', '#198754', '#6f42c1', '#0d6efd', '#adb5bd', '#343a40'
-      ];
-      const ctxSaidas = document.getElementById('canvas-mais-saidas').getContext('2d');
-      if (chartMaisSaidas) chartMaisSaidas.destroy();
-      chartMaisSaidas = new Chart(ctxSaidas, {
-        type: 'pie',
-        data: {
-          labels: saidasLabels,
-          datasets: [{
-            data: saidasData,
-            backgroundColor: saidasColors
-          }]
-        },
-        options: {
-          plugins: {
-            legend: { display: false }
-          }
-        }
-      });
-      gerarLegendaPizza('legenda-mais-saidas', saidasLabels, saidasData, saidasColors);
     }
 
     document.getElementById('btn-exportar-csv').addEventListener('click', async () => {
