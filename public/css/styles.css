@@ -278,7 +278,7 @@ body.sidebar-collapsed #page-content {
 
 .chart-container {
   min-height: 0;
-  height: 320px;
+  height: 380px;
   max-width: 100%;
   display: flex;
   align-items: center;
@@ -291,24 +291,24 @@ body.sidebar-collapsed #page-content {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07);
   width: 100% !important;
   height: 100% !important;
-  max-width: 600px;
+  max-width: 720px;
   min-width: 0;
 }
 
 .dashboard-grafico-mov {
-  height: 350px;
+  height: 410px;
   min-width: 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 1rem 1rem;
+  padding: 1.5rem 1.5rem;
 }
 
 .dashboard-grafico-pizza {
   min-height: 0;
-  height: 160px;
-  margin-bottom: 1rem;
+  height: 200px;
+  margin-bottom: 1.5rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -316,12 +316,12 @@ body.sidebar-collapsed #page-content {
   background: #fff;
   border-radius: var(--borda-radius);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-  padding: 1rem;
+  padding: 1.5rem;
 }
 
 .pizza-container {
-  width: 90px;
-  height: 90px;
+  width: 120px;
+  height: 120px;
   margin: 0 auto;
   position: relative;
 }
@@ -362,20 +362,20 @@ body.sidebar-collapsed #page-content {
 
 @media (max-width: 1400px) {
   .chart-container {
-    max-width: 420px;
+    max-width: 540px;
   }
   #canvas-movimentacoes {
-    max-width: 420px;
+    max-width: 540px;
   }
   #dashboard-cards .small-card {
-    max-width: 120px;
+    max-width: 140px;
   }
   .dashboard-grafico-pizza {
-    height: 120px;
+    height: 160px;
   }
   .pizza-container {
-    width: 70px;
-    height: 70px;
+    width: 90px;
+    height: 90px;
   }
 }
 @media (max-width: 991.98px) {
@@ -386,17 +386,17 @@ body.sidebar-collapsed #page-content {
     max-width: 100%;
   }
   #dashboard-cards .small-card {
-    max-width: 100px;
+    max-width: 110px;
   }
   .dashboard-grafico-pizza {
     flex-direction: row;
     align-items: flex-start;
-    height: 100px;
-    padding: 0.5rem;
+    height: 120px;
+    padding: 1rem;
   }
   .pizza-container {
-    width: 50px;
-    height: 50px;
+    width: 60px;
+    height: 60px;
   }
 }
 @media (max-width: 767.98px) {
@@ -404,21 +404,21 @@ body.sidebar-collapsed #page-content {
     max-width: 100%;
   }
   .chart-container {
-    min-height: 120px;
-    height: 120px;
+    min-height: 160px;
+    height: 160px;
   }
   #canvas-movimentacoes {
     max-width: 100%;
-    height: 80px !important;
+    height: 100px !important;
   }
   .dashboard-grafico-pizza {
     flex-direction: column;
     align-items: center;
-    height: 70px;
-    padding: 0.2rem;
+    height: 90px;
+    padding: 0.5rem;
   }
   .pizza-container {
-    width: 32px;
-    height: 32px;
+    width: 40px;
+    height: 40px;
   }
 }/*# sourceMappingURL=styles.css.map */
