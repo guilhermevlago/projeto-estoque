@@ -49,12 +49,29 @@
           </div>
         </div>
       </div>
+      <!-- Gráficos de Pizza -->
+      <div class="col-lg-6 d-flex flex-column justify-content-between">
+        <div class="dashboard-grafico-pizza bg-white p-3 rounded-4 shadow-sm mb-3 d-flex flex-column align-items-center">
+          <h6 class="mb-2 text-center">Produtos com Mais Saídas</h6>
+          <div class="d-flex align-items-center w-100">
+            <canvas id="canvas-mais-saidas" width="120" height="120"></canvas>
+            <ul id="legenda-mais-saidas" class="list-unstyled mb-0 small ms-3"></ul>
+          </div>
+        </div>
+        <div class="dashboard-grafico-pizza bg-white p-3 rounded-4 shadow-sm d-flex flex-column align-items-center">
+          <h6 class="mb-2 text-center">Produtos com Mais Entradas</h6>
+          <div class="d-flex align-items-center w-100">
+            <canvas id="canvas-mais-entradas" width="120" height="120"></canvas>
+            <ul id="legenda-mais-entradas" class="list-unstyled mb-0 small ms-3"></ul>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Relatório no fim da página -->
     <div class="bg-white p-4 rounded-4 shadow-sm mt-4 w-100 relatorio-dashboard">
       <div class="d-flex align-items-center flex-wrap gap-2 mb-3">
-        <h5 class="mb-0 me-3">Gerar relatório</h5>
+        <h5 class="mb-0 me-3">Gerar relatório:</h5>
         <button id="btn-exportar-csv" class="btn btn-outline-secondary btn-sm me-2" title="Exportar como CSV" aria-label="Exportar como CSV">
           <i class="bi bi-file-earmark-spreadsheet"></i> CSV
         </button>
