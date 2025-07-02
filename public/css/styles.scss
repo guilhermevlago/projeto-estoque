@@ -106,8 +106,8 @@ a {
 // SIDEBAR
 // ===================
 #sidebar {
-  min-width: 220px;
-  max-width: 220px;
+  min-width: 260px; // aumentado
+  max-width: 260px; // aumentado
   width: 100%;
   background: var(--cor-primaria);
   color: white;
@@ -137,21 +137,21 @@ a {
       padding: 0.65rem 1rem;
       border-radius: 0.5rem;
       font-weight: 500;
-      transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+      transition: color 0.2s, box-shadow 0.2s;
       position: relative;
       text-decoration: none !important;
 
       &:hover, &.active {
-        background: var(--cor-secundaria);
-        color: #fff;
-        box-shadow: 0 2px 8px rgba(67,97,238,0.10);
+        background: none; // não altera o fundo
+        color: var(--cor-aviso); // destaque no texto (amarelo)
+        box-shadow: none;
         text-shadow: 0 1px 2px rgba(0,0,0,0.08);
       }
 
       i {
         font-size: 1.3em;
         opacity: 0.85;
-        color: #fff;
+        color: inherit; // ícone acompanha a cor do texto
       }
     }
   }
@@ -206,7 +206,7 @@ a {
       justify-content: center;
       width: 24px;
       height: 24px;
-      color: #fff;
+      color: inherit;
     }
   }
 }
@@ -243,22 +243,22 @@ a {
   transition: margin 0.2s;
   min-height: 100vh;
   background: #f8f9fa;
-  margin-left: 40px; // igual ao sidebar
+  margin-left: 260px; // igual ao sidebar
 }
 
 @media (max-width: 991.98px) {
   #sidebar {
-    min-width: 180px;
-    max-width: 200px;
+    min-width: 200px;
+    max-width: 220px;
   }
   #page-content {
-    margin-left: 200px; // igual ao max-width do #sidebar
+    margin-left: 220px; // igual ao max-width do #sidebar
   }
 }
 
 @media (max-width: 767.98px) {
   #sidebar {
-    min-width: 100px;
+    min-width: 120px;
     max-width: 140px;
     padding: 1rem 0.5rem;
   }

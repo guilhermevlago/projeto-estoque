@@ -81,8 +81,8 @@ a:hover {
 }
 
 #sidebar {
-  min-width: 220px;
-  max-width: 220px;
+  min-width: 260px;
+  max-width: 260px;
   width: 100%;
   background: var(--cor-primaria);
   color: white;
@@ -111,20 +111,20 @@ a:hover {
   padding: 0.65rem 1rem;
   border-radius: 0.5rem;
   font-weight: 500;
-  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  transition: color 0.2s, box-shadow 0.2s;
   position: relative;
   text-decoration: none !important;
 }
 #sidebar .nav .nav-link:hover, #sidebar .nav .nav-link.active {
-  background: var(--cor-secundaria);
-  color: #fff;
-  box-shadow: 0 2px 8px rgba(67, 97, 238, 0.1);
+  background: none;
+  color: var(--cor-aviso);
+  box-shadow: none;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
 }
 #sidebar .nav .nav-link i {
   font-size: 1.3em;
   opacity: 0.85;
-  color: #fff;
+  color: inherit;
 }
 #sidebar h4 {
   font-size: 1.3rem;
@@ -170,7 +170,7 @@ a:hover {
   justify-content: center;
   width: 24px;
   height: 24px;
-  color: #fff;
+  color: inherit;
 }
 
 #toggle-sidebar {
@@ -201,21 +201,21 @@ a:hover {
   transition: margin 0.2s;
   min-height: 100vh;
   background: #f8f9fa;
-  margin-left: 40px;
+  margin-left: 260px;
 }
 
 @media (max-width: 991.98px) {
   #sidebar {
-    min-width: 180px;
-    max-width: 200px;
+    min-width: 200px;
+    max-width: 220px;
   }
   #page-content {
-    margin-left: 200px;
+    margin-left: 220px;
   }
 }
 @media (max-width: 767.98px) {
   #sidebar {
-    min-width: 100px;
+    min-width: 120px;
     max-width: 140px;
     padding: 1rem 0.5rem;
   }
