@@ -475,13 +475,13 @@
     });
 
     // Carrega produtos ao abrir a página
-    carregarProdutos();
-
-    // Alerta de estoque ao abrir a página, se necessário
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('alerta') === '1') {
-      document.getElementById('btn-estoque-alerta').click();
-    }
+    carregarProdutos().then(() => {
+      // Alerta de estoque ao abrir a página, se necessário
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('alerta') === '1') {
+        document.getElementById('btn-estoque-alerta').click();
+      }
+    });
   </script>
 </body>
 </html>
