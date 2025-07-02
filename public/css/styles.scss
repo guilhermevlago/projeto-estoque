@@ -36,15 +36,16 @@
 }
 
 html, body {
+  padding: 0;
+  margin: 0;
   height: 100%;
 }
 
 body {
-  font-family: 'Roboto', system-ui, -apple-system, sans-serif;
-  background-color: var(--cor-fundo);
-  color: var(--cor-texto-principal);
-  margin: 0;
   min-height: 100vh;
+  background: #f8f9fa;
+  font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+  color: var(--cor-texto-principal);
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -123,13 +124,17 @@ body {
 // SIDEBAR
 // ===================
 #sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  z-index: 1000;
   padding: 1.5rem 1rem 1rem 1rem;
-  min-height: 100vh; // ✅ Garante que cobre toda a altura visível
-  height: auto; // ✅ Deixa crescer com o conteúdo
-  background: var(--cor-primaria);
+  background: var(--cor-primaria, #0d6efd);
   border-right: none;
   min-width: 220px;
   max-width: 260px;
+  width: 100%;
   transition: all 0.2s;
   @include sombra-suave;
   flex-shrink: 0; // ✅ Impede que a sidebar encolha
@@ -246,15 +251,48 @@ body {
   }
 }
 
-// Sidebar colapsada ajusta o conteúdo
-#page-content.sidebar-collapsed {
-  margin-left: 60px !important;
+// ===================
+// CONTEÚDO PRINCIPAL
+// ===================
+#page-content {
+  margin-left: 260px; // igual ao max-width da sidebar
+  padding: 2rem 1rem;
   transition: margin 0.2s;
+  min-height: 100vh;
+  background: #f8f9fa;
 }
 
-// Impede que o placeholder da navbar "encha o espaço"
-#navbar-placeholder {
-  flex-shrink: 0;
+// Se sidebar colapsada (se usar esse recurso)
+body.sidebar-collapsed #sidebar {
+  min-width: 60px;
+  max-width: 60px;
+}
+body.sidebar-collapsed #page-content {
+  margin-left: 60px !important;
+}
+
+// Responsivo para telas pequenas
+@media (max-width: 991.98px) {
+  #sidebar {
+    position: fixed;
+    min-width: 180px;
+    max-width: 200px;
+  }
+  #page-content {
+    margin-left: 200px;
+  }
+}
+@media (max-width: 767.98px) {
+  #sidebar {
+    position: fixed;
+    min-width: 100px;
+    max-width: 140px;
+    padding: 1rem 0.5rem;
+  }
+  #page-content {
+    margin-left: 140px;
+    padding: 1rem 0.5rem;
+  }
 }
 
 // ===================
