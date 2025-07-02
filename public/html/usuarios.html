@@ -216,10 +216,23 @@
         const tr = e.target.closest('tr');
         const id = tr.getAttribute('data-id');
         if (confirm('Tem certeza que deseja excluir este usuário?')) {
+          // Solicita senha do usuário logado via modal
+          const senha_confirmacao = await solicitarSenhaConfirmacao();
+          if (!senha_confirmacao) {
+            alert('Confirmação de senha obrigatória.');
+            return;
+          }
           try {
             const response = await fetch(`https://projeto-estoque-production.up.railway.app/api/usuarios/${id}`, {
               method: 'DELETE',
-              headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + localStorage.getItem('token')
+              },
+              body: JSON.stringify({
+                senha_confirmacao,
+                usuario_logado_id
+              })
             });
             if (response.ok) {
               carregarUsuarios();
