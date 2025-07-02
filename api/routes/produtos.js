@@ -32,8 +32,8 @@ router.post('/', autorizar([2, 3]), async (req, res) => {
     estoque_minimo, eh_kit, quantidade_por_kit
   } = req.body;
 
-  if (!sku || !nome || isNaN(preco_venda) || preco_venda <= 0) {
-    return res.status(400).json({ error: 'Campos obrigatórios não informados.' });
+  if (!sku || !nome || isNaN(preco_venda) || preco_venda <= 0 || (estoque_atual !== undefined && estoque_atual < 0) || (estoque_minimo !== undefined && estoque_minimo < 0)) {
+    return res.status(400).json({ error: 'Campos obrigatórios não informados ou valores negativos.' });
   }
 
   try {

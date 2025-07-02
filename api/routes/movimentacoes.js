@@ -44,12 +44,30 @@ router.post('/', async (req, res) => {
     localizacao_fisica_anterior, preco_venda_anterior, estoque_atual_anterior, estoque_minimo_anterior,
     eh_kit_anterior, quantidade_por_kit_anterior
   } = req.body;
+
   if (!produto_id || !tipo || !quantidade || !responsavel_id) {
     return res.status(400).json({ error: 'Campos obrigatórios não informados.' });
   }
+  if (quantidade <= 0) {
+    return res.status(400).json({ error: 'Quantidade deve ser maior que zero.' });
+  }
+
   const conn = await pool.getConnection();
   try {
     await conn.beginTransaction();
+
+    // Verifica estoque antes de saída
+    if (tipo === 'saida') {
+      const [[produto]] = await conn.query('SELECT estoque_atual FROM produto WHERE id = ?', [produto_id]);
+      if (!produto) {
+        await conn.rollback();
+        return res.status(404).json({ error: 'Produto não encontrado.' });
+      }
+      if (produto.estoque_atual < quantidade) {
+        await conn.rollback();
+        return res.status(400).json({ error: 'Estoque insuficiente para saída.' });
+      }
+    }
 
     // Atualiza o estoque do produto se for entrada/saída
     let sqlEstoque = '';
