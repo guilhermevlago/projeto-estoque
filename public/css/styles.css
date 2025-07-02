@@ -308,9 +308,9 @@ a:hover {
   height: 255px;
   margin-bottom: 10px;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   background: #fff;
   border-radius: var(--borda-radius);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
@@ -320,8 +320,41 @@ a:hover {
 .pizza-container {
   width: 180px;
   height: 180px;
-  margin: 0 auto;
+  margin: 0;
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#legenda-mais-entradas,
+#legenda-mais-saidas {
+  margin-left: 2rem;
+  margin-bottom: 0;
+  list-style: none;
+  font-size: 0.92em;
+  word-break: break-word;
+  flex-grow: 1;
+  align-self: flex-start;
+  min-width: 0;
+}
+
+#legenda-mais-entradas li,
+#legenda-mais-saidas li {
+  margin-bottom: 2px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.legenda-pizza-cor {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  margin-right: 7px;
+  vertical-align: middle;
+  border: 1px solid #ccc;
 }
 
 @media (max-width: 1400px) {

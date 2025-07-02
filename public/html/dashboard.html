@@ -51,23 +51,17 @@
       </div>
       <!-- Gráficos de Pizza -->
       <div class="col-lg-6 d-flex flex-column justify-content-between">
-        <div class="dashboard-grafico-pizza bg-white p-3 rounded-4 shadow-sm mb-3">
-          <h6 class="mb-2 text-center">Produtos com Mais Saídas</h6>
-          <div class="d-flex align-items-center w-100">
-            <div class="pizza-container">
-              <canvas id="canvas-mais-saidas"></canvas>
-            </div>
-            <ul id="legenda-mais-saidas" class="list-unstyled mb-0 small ms-3"></ul>
+        <div class="dashboard-grafico-pizza bg-white p-3 rounded-4 shadow-sm mb-3 d-flex align-items-center">
+          <div class="pizza-container flex-shrink-0">
+            <canvas id="canvas-mais-saidas"></canvas>
           </div>
+          <ul id="legenda-mais-saidas" class="list-unstyled mb-0 small ms-4 flex-grow-1"></ul>
         </div>
-        <div class="dashboard-grafico-pizza bg-white p-3 rounded-4 shadow-sm">
-          <h6 class="mb-2 text-center">Produtos com Mais Entradas</h6>
-          <div class="d-flex align-items-center w-100">
-            <div class="pizza-container">
-              <canvas id="canvas-mais-entradas"></canvas>
-            </div>
-            <ul id="legenda-mais-entradas" class="list-unstyled mb-0 small ms-3"></ul>
+        <div class="dashboard-grafico-pizza bg-white p-3 rounded-4 shadow-sm d-flex align-items-center">
+          <div class="pizza-container flex-shrink-0">
+            <canvas id="canvas-mais-entradas"></canvas>
           </div>
+          <ul id="legenda-mais-entradas" class="list-unstyled mb-0 small ms-4 flex-grow-1"></ul>
         </div>
       </div>
     </div>
