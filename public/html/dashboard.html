@@ -140,17 +140,19 @@
       } catch {}
 
       document.getElementById('dashboard-cards').innerHTML = cards.map(card => `
-        <div class="col-6 col-sm-3">
-          <div class="card h-100 border-0 shadow-sm small-card">
-            <div class="card-body text-center py-2 px-1">
-              <div class="mb-1"><i class="bi ${card.icon} fs-4 text-${card.cor}"></i></div>
-              <div class="card-title mb-1 small">${card.titulo}</div>
-              <div class="h5 text-${card.cor} mb-1">${card.valor}</div>
-              <a href="${card.link}" class="btn btn-xs btn-outline-${card.cor}">${card.texto}</a>
-            </div>
-          </div>
+  <div class="col-6 col-sm-3">
+    <div class="card h-100 border-0 shadow-sm small-card">
+      <div class="card-body text-center py-2 px-1">
+        <div class="card-title mb-1 small d-flex align-items-center justify-content-center gap-1">
+          <i class="bi ${card.icon} fs-5 text-${card.cor}"></i>
+          <span>${card.titulo}</span>
         </div>
-      `).join('');
+        <div class="h5 text-${card.cor} mb-1">${card.valor}</div>
+        <a href="${card.link}" class="btn btn-xs btn-outline-${card.cor}">${card.texto}</a>
+      </div>
+    </div>
+  </div>
+`).join('');
     }
 
     // Gráfico dinâmico de movimentações
