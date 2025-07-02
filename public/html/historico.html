@@ -313,16 +313,14 @@
     });
 
     // Inicializa
-    carregarMovimentacoes();
-
-    const urlParams = new URLSearchParams(window.location.search);
-    const acao = urlParams.get('acao');
-    if (acao) {
-      window.addEventListener('DOMContentLoaded', () => {
+    carregarMovimentacoes().then(() => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const acao = urlParams.get('acao');
+      if (acao) {
         document.getElementById('filtroAcao').value = acao;
         document.getElementById('formFiltro').dispatchEvent(new Event('input'));
-      });
-    }
+      }
+    });
   </script>
 </body>
 </html>
