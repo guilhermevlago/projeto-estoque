@@ -94,6 +94,31 @@
     </div>
   </div>
 
+  <!-- Modal de confirmação de senha -->
+  <div class="modal fade" id="modalSenhaConfirmacao" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="formSenhaConfirmacao">
+          <div class="modal-header">
+            <h5 class="modal-title">Confirmação de Senha</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div id="mensagem-erro-senha" class="text-danger mb-2"></div>
+            <div class="mb-3">
+              <label for="inputSenhaConfirmacao" class="form-label">Digite sua senha:</label>
+              <input type="password" class="form-control" id="inputSenhaConfirmacao" required autocomplete="current-password">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Confirmar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     // Verifica login e nível usando utils.js
@@ -211,6 +236,30 @@
 
     const usuario_logado_id = getIdUsuarioLogado(); // Função já existe em utils.js
 
+    // Função para abrir o modal e aguardar a senha
+    function solicitarSenhaConfirmacao() {
+      return new Promise(resolve => {
+        document.getElementById('inputSenhaConfirmacao').value = '';
+        document.getElementById('mensagem-erro-senha').textContent = '';
+        const modal = new bootstrap.Modal(document.getElementById('modalSenhaConfirmacao'));
+        modal.show();
+
+        const form = document.getElementById('formSenhaConfirmacao');
+        const submitHandler = function(e) {
+          e.preventDefault();
+          const senha = document.getElementById('inputSenhaConfirmacao').value;
+          if (!senha) {
+            document.getElementById('mensagem-erro-senha').textContent = 'Digite sua senha.';
+            return;
+          }
+          modal.hide();
+          form.removeEventListener('submit', submitHandler);
+          resolve(senha);
+        };
+        form.addEventListener('submit', submitHandler);
+      });
+    }
+
     // Ao salvar (adicionar ou editar) usuário
     document.getElementById('formUsuario').addEventListener('submit', async function(e) {
       e.preventDefault();
@@ -227,8 +276,8 @@
         return;
       }
 
-      // Solicita senha do usuário logado
-      const senha_confirmacao = prompt('Digite sua senha para confirmar a operação:');
+      // Solicita senha do usuário logado via modal
+      const senha_confirmacao = await solicitarSenhaConfirmacao();
       if (!senha_confirmacao) {
         exibirMensagem('mensagem-erro', 'Confirmação de senha obrigatória.', 'erro');
         return;
