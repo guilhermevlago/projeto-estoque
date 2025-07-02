@@ -120,6 +120,8 @@ router.put('/:id', autorizar([2, 3]), async (req, res) => {
 router.delete('/:id', autorizar([3]), async (req, res) => {
   const { id } = req.params;
   try {
+    // Exclui todas as movimentações do produto antes de excluir o produto (para evitar erro de FK)
+    await pool.query('DELETE FROM movimentacao WHERE produto_id=?', [id]);
     await pool.query('DELETE FROM produto WHERE id=?', [id]);
     res.json({ message: 'Produto excluído com sucesso.' });
   } catch (err) {
