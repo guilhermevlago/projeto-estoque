@@ -18,27 +18,43 @@
   <div id="page-content" class="flex-grow-1 p-4">
     <h1 class="mb-4">Dashboard Analítico</h1>
     
-    <!-- Cards no topo, igual ao início -->
-    <div class="row g-4 mb-4" id="dashboard-cards">
+    <!-- Cards menores no topo -->
+    <div class="row g-3 mb-3" id="dashboard-cards">
       <!-- Cards do dashboard serão preenchidos via JS -->
     </div>
 
     <div class="row g-4">
       <!-- Gráfico de Movimentações -->
       <div class="col-lg-8">
-        <div class="bg-white p-4 rounded-4 shadow-sm h-100">
-          <h5 class="mb-3 text-center">Movimentações</h5>
-          <div class="chart-container my-4">
+        <div class="bg-white p-4 rounded-4 shadow-sm h-100 mb-4">
+          <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+            <h5 class="mb-0 text-center flex-grow-1">Movimentações</h5>
             <div class="filtro-grafico">
-              <label for="filtroPeriodo" class="form-label mb-0">Período:</label>
-              <select id="filtroPeriodo" class="form-select form-select-sm" style="width: auto;">
+              <label for="filtroPeriodo" class="form-label mb-0 me-2">Período:</label>
+              <select id="filtroPeriodo" class="form-select form-select-sm d-inline-block" style="width: auto;">
                 <option value="dia">Dia</option>
                 <option value="semana">Semana</option>
                 <option value="mes" selected>Mês</option>
                 <option value="ano">Ano</option>
               </select>
             </div>
-            <canvas id="canvas-movimentacoes" width="400" height="350"></canvas>
+          </div>
+          <div class="chart-container my-3">
+            <canvas id="canvas-movimentacoes" width="400" height="300"></canvas>
+          </div>
+        </div>
+        <div class="row g-4">
+          <div class="col-md-6">
+            <div class="bg-white p-3 rounded-4 shadow-sm h-100">
+              <h6 class="mb-2 text-center">Produtos com Mais Entradas</h6>
+              <canvas id="canvas-mais-entradas" width="200" height="200"></canvas>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="bg-white p-3 rounded-4 shadow-sm h-100">
+              <h6 class="mb-2 text-center">Produtos com Mais Saídas</h6>
+              <canvas id="canvas-mais-saidas" width="200" height="200"></canvas>
+            </div>
           </div>
         </div>
       </div>
@@ -57,7 +73,6 @@
               <input type="checkbox" id="incluirGrafico" style="margin-right: 8px;" /> Com gráfico
             </label>
           </div>
-          <!-- Tabela removida -->
         </div>
       </div>
     </div>
@@ -69,17 +84,16 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="../js/pdf-utils.js"></script>
   <script>
-    // Verifica login e perfil usando utils.js
     verificarLogin({ redirect: 'inicio.html', perfilPermitido: ['2', '3'] });
     const token = localStorage.getItem('token');
 
     // Dashboard cards
     async function carregarDashboard() {
       const cards = [
-        { titulo: 'Produtos Cadastrados', valor: '-', cor: 'primary', link: 'listagem.html', texto: 'Ver Todos' },
-        { titulo: 'Estoque Baixo', valor: '-', cor: 'danger', link: 'listagem.html?alerta=1', texto: 'Ver Detalhes' },
-        { titulo: 'Entradas no Mês', valor: '-', cor: 'success', link: 'historico.html?acao=entrada', texto: 'Ver Entradas' },
-        { titulo: 'Saídas no Mês', valor: '-', cor: 'warning', link: 'historico.html?acao=saida', texto: 'Ver Saídas' }
+        { titulo: 'Produtos', valor: '-', cor: 'primary', link: 'listagem.html', texto: 'Ver Todos', icon: 'bi-box-seam' },
+        { titulo: 'Estoque Baixo', valor: '-', cor: 'danger', link: 'listagem.html?alerta=1', texto: 'Ver Detalhes', icon: 'bi-exclamation-triangle' },
+        { titulo: 'Entradas/Mês', valor: '-', cor: 'success', link: 'historico.html?acao=entrada', texto: 'Ver Entradas', icon: 'bi-arrow-down-circle' },
+        { titulo: 'Saídas/Mês', valor: '-', cor: 'warning', link: 'historico.html?acao=saida', texto: 'Ver Saídas', icon: 'bi-arrow-up-circle' }
       ];
 
       try {
@@ -109,12 +123,13 @@
       } catch {}
 
       document.getElementById('dashboard-cards').innerHTML = cards.map(card => `
-        <div class="col-md-6 col-lg-3">
-          <div class="card h-100 border-0 shadow-sm">
-            <div class="card-body text-center">
-              <h5 class="card-title">${card.titulo}</h5>
-              <p class="display-4 text-${card.cor}">${card.valor}</p>
-              <a href="${card.link}" class="btn btn-sm btn-outline-${card.cor}">${card.texto}</a>
+        <div class="col-6 col-md-3">
+          <div class="card h-100 border-0 shadow-sm small-card">
+            <div class="card-body text-center py-3">
+              <div class="mb-2"><i class="bi ${card.icon} fs-2 text-${card.cor}"></i></div>
+              <h6 class="card-title mb-1">${card.titulo}</h6>
+              <p class="h3 text-${card.cor} mb-2">${card.valor}</p>
+              <a href="${card.link}" class="btn btn-xs btn-outline-${card.cor}">${card.texto}</a>
             </div>
           </div>
         </div>
@@ -123,6 +138,8 @@
 
     // Gráfico dinâmico de movimentações
     let chartMovimentacoes = null;
+    let chartMaisEntradas = null;
+    let chartMaisSaidas = null;
 
     async function carregarGraficoMovimentacoes(periodo = 'mes') {
       const res = await fetch('https://projeto-estoque-production.up.railway.app/api/movimentacoes', {
@@ -134,16 +151,17 @@
       const now = new Date();
       let labels = [], entradas = [], saidas = [];
 
+      // Filtros para pizza
+      let filtroMovs = [];
       if (periodo === 'dia') {
         labels = Array.from({length: 24}, (_, i) => `${i}:00`);
         entradas = Array(24).fill(0);
         saidas = Array(24).fill(0);
-        movs.forEach(mov => {
+        filtroMovs = movs.filter(mov => new Date(mov.created_at).toDateString() === now.toDateString());
+        filtroMovs.forEach(mov => {
           const d = new Date(mov.created_at);
-          if (d.toDateString() === now.toDateString()) {
-            if (mov.tipo === 'entrada') entradas[d.getHours()] += mov.quantidade;
-            if (mov.tipo === 'saida') saidas[d.getHours()] += mov.quantidade;
-          }
+          if (mov.tipo === 'entrada') entradas[d.getHours()] += mov.quantidade;
+          if (mov.tipo === 'saida') saidas[d.getHours()] += mov.quantidade;
         });
       } else if (periodo === 'semana') {
         const dias = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
@@ -152,40 +170,43 @@
         saidas = Array(7).fill(0);
         const startOfWeek = new Date(now);
         startOfWeek.setDate(now.getDate() - now.getDay());
-        movs.forEach(mov => {
+        filtroMovs = movs.filter(mov => {
           const d = new Date(mov.created_at);
           const diff = Math.floor((d - startOfWeek) / (1000 * 60 * 60 * 24));
-          if (diff >= 0 && diff < 7 && d.getFullYear() === now.getFullYear()) {
-            if (mov.tipo === 'entrada') entradas[d.getDay()] += mov.quantidade;
-            if (mov.tipo === 'saida') saidas[d.getDay()] += mov.quantidade;
-          }
+          return diff >= 0 && diff < 7 && d.getFullYear() === now.getFullYear();
+        });
+        filtroMovs.forEach(mov => {
+          const d = new Date(mov.created_at);
+          if (mov.tipo === 'entrada') entradas[d.getDay()] += mov.quantidade;
+          if (mov.tipo === 'saida') saidas[d.getDay()] += mov.quantidade;
         });
       } else if (periodo === 'ano') {
         labels = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
         entradas = Array(12).fill(0);
         saidas = Array(12).fill(0);
-        movs.forEach(mov => {
+        filtroMovs = movs.filter(mov => new Date(mov.created_at).getFullYear() === now.getFullYear());
+        filtroMovs.forEach(mov => {
           const d = new Date(mov.created_at);
-          if (d.getFullYear() === now.getFullYear()) {
-            if (mov.tipo === 'entrada') entradas[d.getMonth()] += mov.quantidade;
-            if (mov.tipo === 'saida') saidas[d.getMonth()] += mov.quantidade;
-          }
+          if (mov.tipo === 'entrada') entradas[d.getMonth()] += mov.quantidade;
+          if (mov.tipo === 'saida') saidas[d.getMonth()] += mov.quantidade;
         });
       } else { // mês
         const diasNoMes = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
         labels = Array.from({length: diasNoMes}, (_, i) => `${i + 1}`);
         entradas = Array(diasNoMes).fill(0);
         saidas = Array(diasNoMes).fill(0);
-        movs.forEach(mov => {
+        filtroMovs = movs.filter(mov => {
           const d = new Date(mov.created_at);
-          if (d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()) {
-            const dia = d.getDate() - 1;
-            if (mov.tipo === 'entrada') entradas[dia] += mov.quantidade;
-            if (mov.tipo === 'saida') saidas[dia] += mov.quantidade;
-          }
+          return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+        });
+        filtroMovs.forEach(mov => {
+          const d = new Date(mov.created_at);
+          if (mov.tipo === 'entrada') entradas[d.getDate() - 1] += mov.quantidade;
+          if (mov.tipo === 'saida') saidas[d.getDate() - 1] += mov.quantidade;
         });
       }
 
+      // Gráfico de barras
       const ctx = document.getElementById('canvas-movimentacoes').getContext('2d');
       if (chartMovimentacoes) chartMovimentacoes.destroy();
       chartMovimentacoes = new Chart(ctx, {
@@ -200,39 +221,68 @@
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          layout: {
-            padding: {
-              top: 20,
-              bottom: 20,
-              left: 15,
-              right: 15
-            }
-          },
           plugins: {
-            legend: {
-              position: 'top',
-              labels: {
-                font: { size: 14, weight: 'bold' },
-                color: '#333'
-              }
-            },
-            tooltip: {
-              enabled: true,
-              backgroundColor: 'rgba(0,0,0,0.7)',
-              titleFont: { weight: 'bold' },
-              bodyFont: { size: 12 }
-            }
+            legend: { position: 'top' }
           },
           scales: {
-            x: {
-              grid: { color: '#f0f0f0' },
-              ticks: { color: '#666', font: { size: 12 } }
-            },
-            y: {
-              beginAtZero: true,
-              grid: { color: '#f0f0f0' },
-              ticks: { color: '#666', font: { size: 12 } }
-            }
+            x: { grid: { color: '#f0f0f0' } },
+            y: { beginAtZero: true, grid: { color: '#f0f0f0' } }
+          }
+        }
+      });
+
+      // Gráfico de pizza - Mais Entradas
+      const entradasPorProduto = {};
+      filtroMovs.filter(m => m.tipo === 'entrada').forEach(m => {
+        entradasPorProduto[m.produto_nome] = (entradasPorProduto[m.produto_nome] || 0) + m.quantidade;
+      });
+      const topEntradas = Object.entries(entradasPorProduto)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 6);
+      const ctxEntradas = document.getElementById('canvas-mais-entradas').getContext('2d');
+      if (chartMaisEntradas) chartMaisEntradas.destroy();
+      chartMaisEntradas = new Chart(ctxEntradas, {
+        type: 'pie',
+        data: {
+          labels: topEntradas.map(e => e[0]),
+          datasets: [{
+            data: topEntradas.map(e => e[1]),
+            backgroundColor: [
+              '#198754', '#20c997', '#0dcaf0', '#ffc107', '#fd7e14', '#dc3545'
+            ]
+          }]
+        },
+        options: {
+          plugins: {
+            legend: { position: 'bottom' }
+          }
+        }
+      });
+
+      // Gráfico de pizza - Mais Saídas
+      const saidasPorProduto = {};
+      filtroMovs.filter(m => m.tipo === 'saida').forEach(m => {
+        saidasPorProduto[m.produto_nome] = (saidasPorProduto[m.produto_nome] || 0) + m.quantidade;
+      });
+      const topSaidas = Object.entries(saidasPorProduto)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 6);
+      const ctxSaidas = document.getElementById('canvas-mais-saidas').getContext('2d');
+      if (chartMaisSaidas) chartMaisSaidas.destroy();
+      chartMaisSaidas = new Chart(ctxSaidas, {
+        type: 'pie',
+        data: {
+          labels: topSaidas.map(e => e[0]),
+          datasets: [{
+            data: topSaidas.map(e => e[1]),
+            backgroundColor: [
+              '#dc3545', '#fd7e14', '#ffc107', '#0dcaf0', '#20c997', '#198754'
+            ]
+          }]
+        },
+        options: {
+          plugins: {
+            legend: { position: 'bottom' }
           }
         }
       });
