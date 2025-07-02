@@ -64,23 +64,32 @@ async function exportarDashboardParaPDF({ incluirGrafico = false } = {}) {
   y += 12;
 
   // Cabeçalho da tabela
-  doc.setFontSize(11);
+  doc.setFontSize(10);
   doc.setFillColor(230, 230, 230);
-  doc.rect(12, y, 186, 9, 'F');
+  doc.rect(12, y, 186, 8, 'F');
   doc.setTextColor(50);
-  doc.text('Data', 13, y + 6);
-  doc.text('Produto', 32, y + 6);
-  doc.text('Categoria', 67, y + 6);
-  doc.text('Marca', 92, y + 6);
-  doc.text('Localização', 117, y + 6);
-  doc.text('Tipo', 142, y + 6);
-  doc.text('Qtd', 155, y + 6);
-  doc.text('Responsável', 167, y + 6);
-  doc.text('Est. Ant.', 192, y + 6);
-  doc.text('Est. Dep.', 210, y + 6);
-  doc.text('Motivo', 228, y + 6);
-  doc.text('Obs.', 250, y + 6);
-  y += 11;
+
+  // Defina as posições X de cada coluna
+  const colunas = [
+    { label: 'Data', x: 14, width: 18 },
+    { label: 'Produto', x: 32, width: 28 },
+    { label: 'Categoria', x: 60, width: 22 },
+    { label: 'Marca', x: 82, width: 18 },
+    { label: 'Local', x: 100, width: 18 },
+    { label: 'Tipo', x: 118, width: 14 },
+    { label: 'Qtd', x: 132, width: 12 },
+    { label: 'Resp.', x: 144, width: 22 },
+    { label: 'Est.Ant.', x: 166, width: 12 },
+    { label: 'Est.Dep.', x: 178, width: 12 },
+    { label: 'Motivo', x: 190, width: 18 },
+    { label: 'Obs.', x: 208, width: 18 }
+  ];
+
+  // Cabeçalho
+  colunas.forEach(col => {
+    doc.text(col.label, col.x, y + 6);
+  });
+  y += 9;
 
   // Busca movimentações
   const token = localStorage.getItem('token');
@@ -93,26 +102,44 @@ async function exportarDashboardParaPDF({ incluirGrafico = false } = {}) {
   }
   const movs = await res.json();
 
-  doc.setFontSize(10);
+  // --- FILTROS IGUAIS AO CSV ---
+  const tipoSelecionados = [];
+  if (document.getElementById('relatorio-entrada')?.checked) tipoSelecionados.push('entrada');
+  if (document.getElementById('relatorio-saida')?.checked) tipoSelecionados.push('saida');
+  if (document.getElementById('relatorio-cadastro')?.checked) tipoSelecionados.push('cadastro');
+
+  const dataInicio = document.getElementById('relatorio-data-inicio')?.value;
+  const dataFim = document.getElementById('relatorio-data-fim')?.value;
+
+  const movsFiltrados = movs.filter(mov => {
+    const tipoOk = tipoSelecionados.includes(mov.tipo);
+    let dataOk = true;
+    if (dataInicio) dataOk = dataOk && new Date(mov.created_at) >= new Date(dataInicio);
+    if (dataFim) dataOk = dataOk && new Date(mov.created_at) <= new Date(dataFim + 'T23:59:59');
+    return tipoOk && dataOk;
+  });
+
+  doc.setFontSize(9);
   doc.setTextColor(80);
   // Linhas da tabela
-  movs.slice(0, 25).forEach(mov => {
+  movsFiltrados.slice(0, 25).forEach(mov => {
     if (y > 270) { doc.addPage(); y = 18; }
     doc.setDrawColor(240);
     doc.line(13, y - 2, 197, y - 2);
-    doc.text(new Date(mov.created_at).toLocaleDateString('pt-BR'), 13, y);
-    doc.text(String(mov.produto_nome || '').substring(0, 20), 32, y);
-    doc.text(String(mov.categoria || '').substring(0, 15), 67, y);
-    doc.text(String(mov.marca || '').substring(0, 12), 92, y);
-    doc.text(String(mov.localizacao_fisica || '').substring(0, 12), 117, y);
-    doc.text(String(mov.tipo || ''), 142, y);
-    doc.text(String(mov.quantidade || ''), 155, y, { align: 'right' });
-    doc.text(String(mov.responsavel_nome || '').substring(0, 12), 167, y);
-    doc.text(String(mov.estoque_atual_anterior ?? ''), 192, y);
-    doc.text(String(mov.estoque_atual_depois ?? ''), 210, y);
-    doc.text(String(mov.motivo || '').substring(0, 10), 228, y);
-    doc.text(String(mov.observacao || '').substring(0, 10), 250, y);
-    y += 9;
+
+    doc.text(new Date(mov.created_at).toLocaleDateString('pt-BR'), colunas[0].x, y);
+    doc.text(String(mov.produto_nome || '').substring(0, 18), colunas[1].x, y);
+    doc.text(String(mov.categoria || '').substring(0, 12), colunas[2].x, y);
+    doc.text(String(mov.marca || '').substring(0, 10), colunas[3].x, y);
+    doc.text(String(mov.localizacao_fisica || '').substring(0, 10), colunas[4].x, y);
+    doc.text(String(mov.tipo || ''), colunas[5].x, y);
+    doc.text(String(mov.quantidade || ''), colunas[6].x, y, { align: 'right' });
+    doc.text(String(mov.responsavel_nome || '').substring(0, 14), colunas[7].x, y);
+    doc.text(String(mov.estoque_atual_anterior ?? ''), colunas[8].x, y);
+    doc.text(String(mov.estoque_atual_depois ?? ''), colunas[9].x, y);
+    doc.text(String(mov.motivo || '').substring(0, 10), colunas[10].x, y);
+    doc.text(String(mov.observacao || '').substring(0, 10), colunas[11].x, y);
+    y += 8;
   });
 
   doc.save('relatorio_dashboard.pdf');
