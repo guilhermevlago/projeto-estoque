@@ -86,25 +86,27 @@ router.put('/:id', autorizar([2, 3]), async (req, res) => {
     // Registra movimentação de edição
     await pool.query(
       `INSERT INTO movimentacao 
-        (produto_id, tipo, quantidade, responsavel_id, motivo, observacao, dados_anteriores)
-        VALUES (?, 'edicao', ?, ?, 'Edição de produto', '', ?)`,
+        (produto_id, tipo, quantidade, responsavel_id, motivo, observacao,
+         sku_anterior, nome_anterior, descricao_anterior, categoria_anterior, marca_anterior,
+         localizacao_fisica_anterior, preco_venda_anterior, estoque_atual_anterior, estoque_minimo_anterior,
+         eh_kit_anterior, quantidade_por_kit_anterior)
+        VALUES (?, 'edicao', ?, ?, 'Edição de produto', '',
+         ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         id,
         estoque_atual || 0,
-        req.user.id, // O id do usuário logado (vem do middleware auth)
-        JSON.stringify({
-          sku: dadosAnteriores.sku,
-          nome: dadosAnteriores.nome,
-          descricao: dadosAnteriores.descricao,
-          categoria: dadosAnteriores.categoria,
-          marca: dadosAnteriores.marca,
-          localizacao_fisica: dadosAnteriores.localizacao_fisica,
-          preco_venda: dadosAnteriores.preco_venda,
-          estoque_atual: dadosAnteriores.estoque_atual,
-          estoque_minimo: dadosAnteriores.estoque_minimo,
-          eh_kit: dadosAnteriores.eh_kit,
-          quantidade_por_kit: dadosAnteriores.quantidade_por_kit
-        })
+        req.user.id,
+        dadosAnteriores.sku,
+        dadosAnteriores.nome,
+        dadosAnteriores.descricao,
+        dadosAnteriores.categoria,
+        dadosAnteriores.marca,
+        dadosAnteriores.localizacao_fisica,
+        dadosAnteriores.preco_venda,
+        dadosAnteriores.estoque_atual,
+        dadosAnteriores.estoque_minimo,
+        dadosAnteriores.eh_kit,
+        dadosAnteriores.quantidade_por_kit
       ]
     );
 
