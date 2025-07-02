@@ -334,7 +334,7 @@ body.sidebar-collapsed #page-content {
 // ===================
 .chart-container {
   min-height: 0;
-  height: 650px; // aumentado
+  height: 520px; // reduzido ~20%
   max-width: 100%;
   display: flex;
   align-items: center;
@@ -346,28 +346,28 @@ body.sidebar-collapsed #page-content {
   box-shadow: 0 4px 12px rgba(0,0,0,0.07);
   width: 100% !important;
   height: 100% !important;
-  max-width: 1100px; // aumentado
+  max-width: 880px; // reduzido ~20%
   min-width: 0;
 }
 
 .dashboard-grafico-mov {
-  height: 700px; // aumentado
+  height: 560px; // reduzido ~20%
   min-width: 0;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  padding: 3rem 3rem; // aumentado
+  padding: 2.4rem 2.4rem; // reduzido ~20%
 }
 
-.col-lg-6.d-flex.flex-column.justify-content-between {
-  height: 700px; // igual ao .dashboard-grafico-mov
+.col-lg-6.d-flex.flex-column.justifique-content-between {
+  height: 560px; // igual ao .dashboard-grafico-mov
 }
 
 .dashboard-grafico-pizza {
   min-height: 0;
-  height: 340px; // aumentado
-  margin-bottom: 2.5rem;
+  height: 270px; // reduzido ~20%
+  margin-bottom: 2rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -375,12 +375,12 @@ body.sidebar-collapsed #page-content {
   background: #fff;
   border-radius: var(--borda-radius);
   box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-  padding: 3rem;
+  padding: 2.4rem;
 }
 
 .pizza-container {
-  width: 240px;   // aumentado
-  height: 240px;
+  width: 192px;   // reduzido ~20%
+  height: 192px;
   margin: 0 auto;
   position: relative;
 }
@@ -421,43 +421,43 @@ body.sidebar-collapsed #page-content {
 
 // Responsivo para 1280x720
 @media (max-width: 1400px) {
-  .chart-container { max-width: 900px; }
-  #canvas-movimentacoes { max-width: 900px; }
-  #dashboard-cards .small-card { max-width: 140px; }
-  .dashboard-grafico-pizza { height: 260px; }
-  .pizza-container { width: 160px; height: 160px; }
+  .chart-container { max-width: 720px; }
+  #canvas-movimentacoes { max-width: 720px; }
+  #dashboard-cards .small-card { max-width: 112px; }
+  .dashboard-grafico-pizza { height: 208px; }
+  .pizza-container { width: 128px; height: 128px; }
 }
 @media (max-width: 991.98px) {
   .chart-container { max-width: 100%; }
   #canvas-movimentacoes { max-width: 100%; }
-  #dashboard-cards .small-card { max-width: 110px; }
+  #dashboard-cards .small-card { max-width: 88px; }
 
   .dashboard-grafico-pizza {
     flex-direction: row;
     align-items: flex-start;
-    height: 180px;
-    padding: 1.5rem;
+    height: 144px;
+    padding: 1.2rem;
   }
 
   .pizza-container {
-    width: 100px;
-    height: 100px;
+    width: 80px;
+    height: 80px;
   }
 }
 @media (max-width: 767.98px) {
   #dashboard-cards .small-card { max-width: 100%; }
-  .chart-container { min-height: 260px; height: 260px; }
-  #canvas-movimentacoes { max-width: 100%; height: 160px !important; }
+  .chart-container { min-height: 208px; height: 208px; }
+  #canvas-movimentacoes { max-width: 100%; height: 128px !important; }
 
   .dashboard-grafico-pizza {
     flex-direction: column;
     align-items: center;
-    height: 140px;
-    padding: 0.8rem;
+    height: 112px;
+    padding: 0.64rem;
   }
 
   .pizza-container {
-    width: 70px;
-    height: 70px;
+    width: 56px;
+    height: 56px;
   }
 }
