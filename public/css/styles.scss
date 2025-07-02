@@ -366,39 +366,48 @@ body.sidebar-collapsed #page-content {
 .dashboard-flex {
   display: flex;
   gap: 2rem;
-  align-items: stretch;
-  flex-wrap: wrap;
+  align-items: flex-start;
 }
+
 .dashboard-cards-col {
-  flex: 0 0 320px;
-  max-width: 340px;
-  min-width: 260px;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
   gap: 1.5rem;
+  flex: 0 0 420px;
+  max-width: 440px;
+  min-width: 340px;
 }
+
+.dashboard-card {
+  min-width: 0;
+  margin-bottom: 0; // remove margin para grid
+}
+
 .dashboard-graph-col {
   flex: 1 1 0;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: stretch;
 }
-@media (max-width: 991.98px) {
+
+// Responsivo: empilha cards e gráfico em telas pequenas
+@media (max-width: 1200px) {
   .dashboard-flex {
     flex-direction: column;
   }
   .dashboard-cards-col {
-    margin-bottom: 2rem;
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 1rem;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
     max-width: 100%;
-  }
-  .dashboard-graph-col {
-    min-width: 0;
+    margin-bottom: 2rem;
   }
 }
 @media (max-width: 767.98px) {
   .dashboard-cards-col {
-    flex-direction: column;
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(4, auto);
     gap: 1rem;
   }
 }
