@@ -334,7 +334,7 @@ body.sidebar-collapsed #page-content {
 // ===================
 .chart-container {
   min-height: 0;
-  height: 180px; // reduzido
+  height: 110px; // bem menor
   max-width: 100%;
   display: flex;
   align-items: center;
@@ -346,18 +346,18 @@ body.sidebar-collapsed #page-content {
   box-shadow: 0 4px 12px rgba(0,0,0,0.07);
   width: 100% !important;
   height: 100% !important;
-  max-width: 420px; // reduzido
+  max-width: 220px; // bem menor
   min-width: 0;
 }
 
 .dashboard-grafico-mov {
-  height: 200px; // reduzido
+  height: 130px; // bem menor
   min-width: 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 0.5rem 0.5rem; // reduzido
+  padding: 0.2rem 0.2rem; // menor
 }
 
 // ===================
@@ -365,21 +365,21 @@ body.sidebar-collapsed #page-content {
 // ===================
 .dashboard-grafico-pizza {
   min-height: 0;
-  height: 70px; // reduzido
-  margin-bottom: 0.5rem;
+  height: 38px; // bem menor
+  margin-bottom: 0.3rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   background: #fff;
   border-radius: var(--borda-radius);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.07);
-  padding: 0.5rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  padding: 0.2rem;
 }
 
 .pizza-container {
-  width: 32px;   // reduzido
-  height: 32px;
+  width: 18px;   // bem menor
+  height: 18px;
   margin: 0 auto;
   position: relative;
 }
@@ -420,41 +420,41 @@ body.sidebar-collapsed #page-content {
 
 // Responsivo para 1280x720
 @media (max-width: 1400px) {
-  .chart-container { max-width: 320px; }
-  #canvas-movimentacoes { max-width: 320px; }
-  #dashboard-cards .small-card { max-width: 100px; }
+  .chart-container { max-width: 180px; }
+  #canvas-movimentacoes { max-width: 180px; }
+  #dashboard-cards .small-card { max-width: 80px; }
 }
 @media (max-width: 991.98px) {
   .chart-container { max-width: 100%; }
   #canvas-movimentacoes { max-width: 100%; }
-  #dashboard-cards .small-card { max-width: 80px; }
+  #dashboard-cards .small-card { max-width: 60px; }
 
   .dashboard-grafico-pizza {
     flex-direction: row;
     align-items: flex-start;
-    height: 50px; // ainda menor
-    padding: 0.3rem;
+    height: 28px;
+    padding: 0.1rem;
   }
 
   .pizza-container {
-    width: 24px;
-    height: 24px;
+    width: 12px;
+    height: 12px;
   }
 }
 @media (max-width: 767.98px) {
   #dashboard-cards .small-card { max-width: 100%; }
-  .chart-container { min-height: 80px; height: 80px; }
-  #canvas-movimentacoes { max-width: 100%; height: 50px !important; }
+  .chart-container { min-height: 40px; height: 40px; }
+  #canvas-movimentacoes { max-width: 100%; height: 24px !important; }
 
   .dashboard-grafico-pizza {
     flex-direction: column;
     align-items: center;
-    height: 40px;
-    padding: 0.2rem;
+    height: 18px;
+    padding: 0.05rem;
   }
 
   .pizza-container {
-    width: 18px;
-    height: 18px;
+    width: 8px;
+    height: 8px;
   }
 }
