@@ -239,20 +239,11 @@ a {
 // ===================
 #page-content {
   flex-grow: 1;
-  padding: 2rem;
+  padding: 1rem;
   transition: margin 0.2s;
   min-height: 100vh;
   background: #f8f9fa;
-  margin-left: 260px;
-}
-
-body.sidebar-collapsed #sidebar {
-  min-width: 60px;
-  max-width: 60px;
-}
-
-body.sidebar-collapsed #page-content {
-  margin-left: 60px !important;
+  margin-left: 260px; // igual ao max-width do #sidebar
 }
 
 @media (max-width: 991.98px) {
@@ -261,7 +252,7 @@ body.sidebar-collapsed #page-content {
     max-width: 200px;
   }
   #page-content {
-    margin-left: 200px;
+    margin-left: 200px; // igual ao max-width do #sidebar
   }
 }
 
@@ -272,7 +263,7 @@ body.sidebar-collapsed #page-content {
     padding: 1rem 0.5rem;
   }
   #page-content {
-    margin-left: 140px;
+    margin-left: 140px; // igual ao max-width do #sidebar
     padding: 1rem;
   }
 }

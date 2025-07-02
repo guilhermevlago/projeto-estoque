@@ -197,20 +197,11 @@ a:hover {
 
 #page-content {
   flex-grow: 1;
-  padding: 2rem;
+  padding: 1rem;
   transition: margin 0.2s;
   min-height: 100vh;
   background: #f8f9fa;
   margin-left: 260px;
-}
-
-body.sidebar-collapsed #sidebar {
-  min-width: 60px;
-  max-width: 60px;
-}
-
-body.sidebar-collapsed #page-content {
-  margin-left: 60px !important;
 }
 
 @media (max-width: 991.98px) {
