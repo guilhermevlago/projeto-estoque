@@ -201,7 +201,7 @@ a:hover {
   transition: margin 0.2s;
   min-height: 100vh;
   background: #f8f9fa;
-  margin-left: 220px;
+  margin-left: 40px;
 }
 
 @media (max-width: 991.98px) {
