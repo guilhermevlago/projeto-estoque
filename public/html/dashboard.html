@@ -18,24 +18,28 @@
   <div id="page-content" class="flex-grow-1 p-4">
     <h1 class="mb-4">Dashboard Analítico</h1>
     
-    <div class="row g-4 mb-4" id="dashboard-cards">
-      <!-- Cards do dashboard serão preenchidos via JS -->
-    </div>
-
-    <!-- Gráfico de Movimentações -->
-    <div class="bg-white p-4 rounded-4 shadow-sm mt-4">
-      <h5 class="mb-3 text-center">Movimentações</h5>
-      <div class="chart-container my-4">
-        <div class="filtro-grafico">
-          <label for="filtroPeriodo" class="form-label mb-0">Período:</label>
-          <select id="filtroPeriodo" class="form-select form-select-sm" style="width: auto;">
-            <option value="dia">Dia</option>
-            <option value="semana">Semana</option>
-            <option value="mes" selected>Mês</option>
-            <option value="ano">Ano</option>
-          </select>
+    <div class="dashboard-flex">
+      <!-- Cards ao lado do gráfico -->
+      <div class="dashboard-cards-col" id="dashboard-cards">
+        <!-- Cards do dashboard serão preenchidos via JS -->
+      </div>
+      <div class="dashboard-graph-col">
+        <!-- Gráfico de Movimentações -->
+        <div class="bg-white p-4 rounded-4 shadow-sm">
+          <h5 class="mb-3 text-center">Movimentações</h5>
+          <div class="chart-container my-4">
+            <div class="filtro-grafico">
+              <label for="filtroPeriodo" class="form-label mb-0">Período:</label>
+              <select id="filtroPeriodo" class="form-select form-select-sm" style="width: auto;">
+                <option value="dia">Dia</option>
+                <option value="semana">Semana</option>
+                <option value="mes" selected>Mês</option>
+                <option value="ano">Ano</option>
+              </select>
+            </div>
+            <canvas id="canvas-movimentacoes" width="400" height="350"></canvas>
+          </div>
         </div>
-        <canvas id="canvas-movimentacoes" width="400" height="350"></canvas>
       </div>
     </div>
 
@@ -101,13 +105,11 @@
       } catch {}
 
       document.getElementById('dashboard-cards').innerHTML = cards.map(card => `
-        <div class="col-md-6 col-lg-3">
-          <div class="card h-100 border-0 shadow-sm">
-            <div class="card-body text-center">
-              <h5 class="card-title">${card.titulo}</h5>
-              <p class="display-4 text-${card.cor}">${card.valor}</p>
-              <a href="${card.link}" class="btn btn-sm btn-outline-${card.cor}">${card.texto}</a>
-            </div>
+        <div class="dashboard-card card h-100 border-0 shadow-sm">
+          <div class="card-body text-center">
+            <h5 class="card-title">${card.titulo}</h5>
+            <p class="display-4 text-${card.cor}">${card.valor}</p>
+            <a href="${card.link}" class="btn btn-sm btn-outline-${card.cor}">${card.texto}</a>
           </div>
         </div>
       `).join('');
