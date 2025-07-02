@@ -239,6 +239,118 @@
       });
     }
 
+    let chartMaisEntradas = null;
+    let chartMaisSaidas = null;
+
+    function gerarLegendaPizza(elementId, labels, data, colors) {
+      const ul = document.getElementById(elementId);
+      ul.innerHTML = '';
+      labels.forEach((label, i) => {
+        const color = colors[i % colors.length];
+        const value = data[i];
+        const li = document.createElement('li');
+        li.innerHTML = `<span class="legenda-pizza-cor" style="background:${color};"></span>${label} <span class="text-muted">(${value})</span>`;
+        ul.appendChild(li);
+      });
+    }
+
+    async function carregarGraficosPizza(periodo = 'mes') {
+      const res = await fetch('https://projeto-estoque-production.up.railway.app/api/movimentacoes', {
+        headers: { Authorization: 'Bearer ' + token }
+      });
+      if (!res.ok) return;
+
+      const movs = await res.json();
+      const now = new Date();
+      let filtroMovs = [];
+
+      // Filtra movimentações conforme o período selecionado
+      if (periodo === 'dia') {
+        filtroMovs = movs.filter(mov => new Date(mov.created_at).toDateString() === now.toDateString());
+      } else if (periodo === 'semana') {
+        const startOfWeek = new Date(now);
+        startOfWeek.setDate(now.getDate() - now.getDay());
+        filtroMovs = movs.filter(mov => {
+          const d = new Date(mov.created_at);
+          const diff = Math.floor((d - startOfWeek) / (1000 * 60 * 60 * 24));
+          return diff >= 0 && diff < 7 && d.getFullYear() === now.getFullYear();
+        });
+      } else if (periodo === 'ano') {
+        filtroMovs = movs.filter(mov => new Date(mov.created_at).getFullYear() === now.getFullYear());
+      } else { // mês
+        filtroMovs = movs.filter(mov => {
+          const d = new Date(mov.created_at);
+          return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+        });
+      }
+
+      // Gráfico de pizza - Mais Saídas
+      const saidasPorProduto = {};
+      filtroMovs.filter(m => m.tipo === 'saida').forEach(m => {
+        saidasPorProduto[m.produto_nome] = (saidasPorProduto[m.produto_nome] || 0) + m.quantidade;
+      });
+      let saidasArr = Object.entries(saidasPorProduto).sort((a, b) => b[1] - a[1]);
+      let topSaidas = saidasArr.slice(0, 9);
+      let outrosSaidas = saidasArr.slice(9).reduce((acc, cur) => acc + cur[1], 0);
+      if (outrosSaidas > 0) topSaidas.push(['Outros', outrosSaidas]);
+      const saidasLabels = topSaidas.map(e => e[0]);
+      const saidasData = topSaidas.map(e => e[1]);
+      const saidasColors = [
+        '#dc3545', '#fd7e14', '#ffc107', '#0dcaf0', '#20c997', '#198754', '#6f42c1', '#0d6efd', '#adb5bd', '#343a40'
+      ];
+      const ctxSaidas = document.getElementById('canvas-mais-saidas').getContext('2d');
+      if (chartMaisSaidas) chartMaisSaidas.destroy();
+      chartMaisSaidas = new Chart(ctxSaidas, {
+        type: 'pie',
+        data: {
+          labels: saidasLabels,
+          datasets: [{
+            data: saidasData,
+            backgroundColor: saidasColors
+          }]
+        },
+        options: {
+          plugins: {
+            legend: { display: false }
+          }
+        }
+      });
+      gerarLegendaPizza('legenda-mais-saidas', saidasLabels, saidasData, saidasColors);
+
+      // Gráfico de pizza - Mais Entradas
+      const entradasPorProduto = {};
+      filtroMovs.filter(m => m.tipo === 'entrada').forEach(m => {
+        entradasPorProduto[m.produto_nome] = (entradasPorProduto[m.produto_nome] || 0) + m.quantidade;
+      });
+      let entradasArr = Object.entries(entradasPorProduto).sort((a, b) => b[1] - a[1]);
+      let topEntradas = entradasArr.slice(0, 9);
+      let outrosEntradas = entradasArr.slice(9).reduce((acc, cur) => acc + cur[1], 0);
+      if (outrosEntradas > 0) topEntradas.push(['Outros', outrosEntradas]);
+      const entradasLabels = topEntradas.map(e => e[0]);
+      const entradasData = topEntradas.map(e => e[1]);
+      const entradasColors = [
+        '#198754', '#20c997', '#0dcaf0', '#ffc107', '#fd7e14', '#dc3545', '#6f42c1', '#0d6efd', '#adb5bd', '#343a40'
+      ];
+      const ctxEntradas = document.getElementById('canvas-mais-entradas').getContext('2d');
+      if (chartMaisEntradas) chartMaisEntradas.destroy();
+      chartMaisEntradas = new Chart(ctxEntradas, {
+        type: 'pie',
+        data: {
+          labels: entradasLabels,
+          datasets: [{
+            data: entradasData,
+            backgroundColor: entradasColors
+          }]
+        },
+        options: {
+          plugins: {
+            legend: { display: false }
+          }
+        }
+      });
+      gerarLegendaPizza('legenda-mais-entradas', entradasLabels, entradasData, entradasColors);
+    }
+
     document.getElementById('btn-exportar-csv').addEventListener('click', async () => {
       const res = await fetch('https://projeto-estoque-production.up.railway.app/api/movimentacoes', {
         headers: { Authorization: 'Bearer ' + token }
@@ -267,6 +379,7 @@
 
     document.getElementById('filtroPeriodo').addEventListener('change', function() {
       carregarGraficoMovimentacoes(this.value);
+      carregarGraficosPizza(this.value);
     });
 
     document.getElementById('dashboard-cards').addEventListener('click', function(e) {
@@ -277,6 +390,7 @@
 
     carregarDashboard();
     carregarGraficoMovimentacoes();
+    carregarGraficosPizza();
   </script>
 </body>
 </html>
