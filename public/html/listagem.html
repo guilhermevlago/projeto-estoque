@@ -252,22 +252,29 @@
       const fim = inicio + itensPorPagina;
       const pagina = lista.slice(inicio, fim);
 
-      tbody.innerHTML = pagina.map(produto => `
-        <tr data-id="${produto.id}">
-          <td>${produto.sku}</td>
-          <td>${produto.nome}</td>
-          <td>${produto.categoria || '-'}</td>
-          <td>${produto.marca || '-'}</td>
-          <td>${produto.localizacao_fisica || '-'}</td>
-          <td>${formatarMoeda(produto.preco_venda)}</td>
-          <td>${produto.estoque_atual ?? '-'}</td>
-          <td>
-            <a href="#" class="btn btn-sm btn-outline-info me-1 btn-visualizar-produto" title="Visualizar"><i class="bi bi-eye"></i></a>
-            <a href="#" class="btn btn-sm btn-outline-primary me-1 btn-editar-produto" title="Editar"><i class="bi bi-pencil"></i></a>
-            <a href="#" class="btn btn-sm btn-outline-danger btn-excluir-produto" title="Excluir"><i class="bi bi-trash"></i></a>
-          </td>
-        </tr>
-      `).join('');
+      tbody.innerHTML = pagina.map(produto => {
+        // Verifica se está em alerta de estoque
+        const alertaEstoque = produto.estoque_atual !== null && produto.estoque_minimo !== null && produto.estoque_atual <= produto.estoque_minimo;
+        return `
+          <tr data-id="${produto.id}">
+            <td>
+              ${produto.sku}
+              ${alertaEstoque ? '<i class="bi bi-exclamation-triangle-fill text-warning ms-1" title="Estoque baixo"></i>' : ''}
+            </td>
+            <td>${produto.nome}</td>
+            <td>${produto.categoria || '-'}</td>
+            <td>${produto.marca || '-'}</td>
+            <td>${produto.localizacao_fisica || '-'}</td>
+            <td>${formatarMoeda(produto.preco_venda)}</td>
+            <td>${produto.estoque_atual ?? '-'}</td>
+            <td>
+              <a href="#" class="btn btn-sm btn-outline-info me-1 btn-visualizar-produto" title="Visualizar"><i class="bi bi-eye"></i></a>
+              <a href="#" class="btn btn-sm btn-outline-primary me-1 btn-editar-produto" title="Editar"><i class="bi bi-pencil"></i></a>
+              <a href="#" class="btn btn-sm btn-outline-danger btn-excluir-produto" title="Excluir"><i class="bi bi-trash"></i></a>
+            </td>
+          </tr>
+        `;
+      }).join('');
 
       // Renderiza paginação
       let htmlPaginacao = '';
