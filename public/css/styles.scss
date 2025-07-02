@@ -457,7 +457,10 @@ a {
 
 .relatorio-dashboard {
   margin: 5px !important;
-  margin-bottom: 0 !important; // diminui a distância para os gráficos abaixo
+  margin-bottom: 0 !important;
+  padding-top: 0.7rem !important;
+  padding-bottom: 0.7rem !important;
+  /* Se quiser ainda menos alto, pode usar 0.5rem */
 }
 
 // Se o container de gráficos tiver margin-top, diminua também:
