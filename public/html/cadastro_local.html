@@ -82,7 +82,8 @@
       }
     }
 
-    document.getElementById('form-local').addEventListener('submit', async function(e) {
+    // Função padrão de cadastro
+    async function cadastrarLocal(e) {
       e.preventDefault();
       const nome = document.getElementById('nomeLocal').value.trim();
       const descricao = document.getElementById('descricaoLocal').value.trim();
@@ -100,7 +101,7 @@
         if (res.ok) {
           msg.textContent = 'Local cadastrado!';
           msg.className = 'text-success me-3';
-          this.reset();
+          document.getElementById('form-local').reset();
           carregarLocais();
         } else {
           const data = await res.json();
@@ -111,11 +112,23 @@
         msg.textContent = 'Erro ao conectar ao servidor.';
         msg.className = 'text-danger me-3';
       }
-    });
+    }
+
+    // Sempre use a função padrão ao carregar a página ou após editar/cancelar
+    document.getElementById('form-local').onsubmit = cadastrarLocal;
+
+    // Botão cancelar sempre volta ao modo cadastro
+    document.getElementById('form-local').onreset = function() {
+      setTimeout(() => {
+        document.getElementById('form-local').onsubmit = cadastrarLocal;
+        document.getElementById('msg-local').textContent = '';
+      }, 10);
+    };
 
     window.editarLocal = function(id, nome, descricao) {
       document.getElementById('nomeLocal').value = nome;
       document.getElementById('descricaoLocal').value = descricao;
+      document.getElementById('msg-local').textContent = '';
       document.getElementById('form-local').onsubmit = async function(e) {
         e.preventDefault();
         const novoNome = document.getElementById('nomeLocal').value.trim();
@@ -134,8 +147,8 @@
           if (res.ok) {
             msg.textContent = 'Local atualizado!';
             msg.className = 'text-success me-3';
-            this.reset();
-            this.onsubmit = null;
+            document.getElementById('form-local').reset();
+            document.getElementById('form-local').onsubmit = cadastrarLocal;
             carregarLocais();
           } else {
             const data = await res.json();
