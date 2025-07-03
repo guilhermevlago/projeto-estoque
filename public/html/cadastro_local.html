@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cadastro de Local Físico | Sistema de Estoque</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/styles.css" />
+</head>
+<body class="d-flex" data-page="cadastro_local">
+
+  <!-- Sidebar -->
+  <div id="navbar-placeholder"></div>
+  <script src="../js/navbar.js"></script>
+
+  <div id="page-content" class="flex-grow-1 p-4">
+    <h1 class="mb-4">Cadastro de Local Físico</h1>
+    <form id="form-local" class="bg-white p-4 rounded-4 shadow-sm mb-4">
+      <div class="row g-3 mb-3">
+        <div class="col-md-6">
+          <label for="nomeLocal" class="form-label">Nome do Local <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" id="nomeLocal" required maxlength="100">
+        </div>
+        <div class="col-md-6">
+          <label for="descricaoLocal" class="form-label">Descrição</label>
+          <input type="text" class="form-control" id="descricaoLocal" maxlength="255">
+        </div>
+      </div>
+      <div class="text-end">
+        <span id="msg-local" class="me-3"></span>
+        <button type="reset" class="btn btn-secondary me-2">Cancelar</button>
+        <button type="submit" class="btn btn-success">Cadastrar Local</button>
+      </div>
+    </form>
+
+    <h4 class="mb-3">Locais Cadastrados</h4>
+    <div class="bg-white p-3 rounded-4 shadow-sm">
+      <table class="table table-bordered table-striped mb-0" id="tabela-locais">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Descrição</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Locais serão preenchidos via JS -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    verificarLogin({ redirect: '../index.html' });
+    const token = localStorage.getItem('token');
+    const apiUrl = 'https://projeto-estoque-production.up.railway.app/api/localizacoes';
+
+    async function carregarLocais() {
+      const tbody = document.querySelector('#tabela-locais tbody');
+      tbody.innerHTML = '';
+      try {
+        const res = await fetch(apiUrl, { headers: { Authorization: 'Bearer ' + token } });
+        if (res.ok) {
+          const locais = await res.json();
+          locais.forEach(local => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${local.nome}</td>
+              <td>${local.descricao || ''}</td>
+              <td>
+                <button class="btn btn-sm btn-outline-primary me-1" onclick="editarLocal(${local.id}, '${local.nome.replace(/'/g, "\\'")}', '${(local.descricao || '').replace(/'/g, "\\'")}')"><i class="bi bi-pencil"></i></button>
+                <button class="btn btn-sm btn-outline-danger" onclick="removerLocal(${local.id})"><i class="bi bi-trash"></i></button>
+              </td>
+            `;
+            tbody.appendChild(tr);
+          });
+        }
+      } catch (e) {
+        tbody.innerHTML = '<tr><td colspan="3" class="text-danger">Erro ao carregar locais.</td></tr>';
+      }
+    }
+
+    // Função padrão de cadastro
+    async function cadastrarLocal(e) {
+      e.preventDefault();
+      const nome = document.getElementById('nomeLocal').value.trim();
+      const descricao = document.getElementById('descricaoLocal').value.trim();
+      const msg = document.getElementById('msg-local');
+      msg.textContent = '';
+      try {
+        const res = await fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + token
+          },
+          body: JSON.stringify({ nome, descricao })
+        });
+        if (res.ok) {
+          msg.textContent = 'Local cadastrado!';
+          msg.className = 'text-success me-3';
+          document.getElementById('form-local').reset();
+          carregarLocais();
+        } else {
+          const data = await res.json();
+          msg.textContent = data.error || 'Erro ao cadastrar.';
+          msg.className = 'text-danger me-3';
+        }
+      } catch {
+        msg.textContent = 'Erro ao conectar ao servidor.';
+        msg.className = 'text-danger me-3';
+      }
+    }
+
+    // Sempre use a função padrão ao carregar a página ou após editar/cancelar
+    document.getElementById('form-local').onsubmit = cadastrarLocal;
+
+    // Botão cancelar sempre volta ao modo cadastro
+    document.getElementById('form-local').onreset = function() {
+      setTimeout(() => {
+        document.getElementById('form-local').onsubmit = cadastrarLocal;
+        document.getElementById('msg-local').textContent = '';
+      }, 10);
+    };
+
+    window.editarLocal = function(id, nome, descricao) {
+      document.getElementById('nomeLocal').value = nome;
+      document.getElementById('descricaoLocal').value = descricao;
+      document.getElementById('msg-local').textContent = '';
+      document.getElementById('form-local').onsubmit = async function(e) {
+        e.preventDefault();
+        const novoNome = document.getElementById('nomeLocal').value.trim();
+        const novaDescricao = document.getElementById('descricaoLocal').value.trim();
+        const msg = document.getElementById('msg-local');
+        msg.textContent = '';
+        try {
+          const res = await fetch(`${apiUrl}/${id}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: 'Bearer ' + token
+            },
+            body: JSON.stringify({ nome: novoNome, descricao: novaDescricao })
+          });
+          if (res.ok) {
+            msg.textContent = 'Local atualizado!';
+            msg.className = 'text-success me-3';
+            document.getElementById('form-local').reset();
+            document.getElementById('form-local').onsubmit = cadastrarLocal;
+            carregarLocais();
+          } else {
+            const data = await res.json();
+            msg.textContent = data.error || 'Erro ao atualizar.';
+            msg.className = 'text-danger me-3';
+          }
+        } catch {
+          msg.textContent = 'Erro ao conectar ao servidor.';
+          msg.className = 'text-danger me-3';
+        }
+      };
+    };
+
+    window.removerLocal = async function(id) {
+      if (!confirm('Deseja remover este local?')) return;
+      try {
+        const res = await fetch(`${apiUrl}/${id}`, {
+          method: 'DELETE',
+          headers: { Authorization: 'Bearer ' + token }
+        });
+        if (res.ok) {
+          carregarLocais();
+        }
+      } catch {}
+    };
+
+    carregarLocais();
+  </script>
+</body>
+</html>

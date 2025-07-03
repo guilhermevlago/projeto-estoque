@@ -37,7 +37,7 @@
         </div>
         <div class="col-auto">
           <select class="form-select" id="filtroLocalizacao">
-            <option value="">Todas as Localizações</option>
+            <option value="">Todos os Locais</option>
           </select>
         </div>
         <div class="col-auto">
@@ -47,7 +47,7 @@
         </div>
         <div class="col-auto">
           <button type="submit" class="btn btn-outline-secondary">
-            <i class="bi bi-search"></i> Filtrar
+            <i class="bi bi-search"></i> Buscar / Limpar filtro
           </button>
         </div>
         <div class="col-auto">
@@ -66,9 +66,9 @@
             <th scope="col">Nome</th>
             <th scope="col">Categoria</th>
             <th scope="col">Marca</th>
-            <th scope="col">Localização</th>
             <th scope="col">Preço de Venda</th>
             <th scope="col">Estoque</th>
+            <th scope="col">Estoque Mínimo</th>
             <th scope="col">Ações</th>
           </tr>
         </thead>
@@ -100,12 +100,10 @@
             <dd class="col-7" id="visuCategoria"></dd>
             <dt class="col-5">Marca</dt>
             <dd class="col-7" id="visuMarca"></dd>
-            <dt class="col-5">Localização</dt>
-            <dd class="col-7" id="visuLocalizacao"></dd>
             <dt class="col-5">Preço de Venda</dt>
             <dd class="col-7" id="visuPreco"></dd>
-            <dt class="col-5">Estoque Atual</dt>
-            <dd class="col-7" id="visuEstoque"></dd>
+            <dt class="col-5">Estoque por Local</dt>
+            <dd class="col-7" id="visuEstoquePorLocal"></dd>
             <dt class="col-5">Estoque Mínimo</dt>
             <dd class="col-7" id="visuEstoqueMinimo"></dd>
             <dt class="col-5">É Kit?</dt>
@@ -152,16 +150,8 @@
               <input type="text" class="form-control" id="editarMarca">
             </div>
             <div class="mb-3">
-              <label class="form-label">Localização</label>
-              <input type="text" class="form-control" id="editarLocalizacao" required>
-            </div>
-            <div class="mb-3">
               <label class="form-label">Preço de Venda</label>
               <input type="number" class="form-control" id="editarPreco" min="0" step="0.01" required>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Estoque</label>
-              <input type="number" class="form-control" id="editarEstoque" min="0" required>
             </div>
             <div class="mb-3">
               <label class="form-label">Estoque Mínimo</label>
@@ -193,8 +183,22 @@
     verificarLogin({ redirect: '../index.html' });
 
     let produtos = [];
+    let locais = [];
     let paginaAtual = 1;
     const itensPorPagina = 10;
+
+    // Carrega locais para filtro e uso geral
+    async function carregarLocais() {
+      const res = await fetch('https://projeto-estoque-production.up.railway.app/api/localizacoes', {
+        headers: { Authorization: 'Bearer ' + localStorage.getItem('token') }
+      });
+      if (res.ok) {
+        locais = await res.json();
+        const selLocalizacao = document.getElementById('filtroLocalizacao');
+        selLocalizacao.innerHTML = '<option value="">Todos os Locais</option>' +
+          locais.map(l => `<option value="${l.id}">${l.nome}</option>`).join('');
+      }
+    }
 
     // Carrega produtos da API
     async function carregarProdutos() {
@@ -217,26 +221,31 @@
       }
     }
 
-    // Preenche selects de filtro de categoria, localização e marca
+    // Preenche selects de filtro de categoria e marca
     function preencherFiltros(lista) {
       const categorias = [...new Set(lista.map(p => p.categoria).filter(Boolean))].sort();
-      const localizacoes = [...new Set(lista.map(p => p.localizacao_fisica).filter(Boolean))].sort();
       const marcas = [...new Set(lista.map(p => p.marca).filter(Boolean))].sort();
 
       const selCategoria = document.getElementById('filtroCategoria');
-      const selLocalizacao = document.getElementById('filtroLocalizacao');
       const selMarca = document.getElementById('filtroMarca');
 
       selCategoria.innerHTML = '<option value="">Todas as Categorias</option>' +
         categorias.map(c => `<option value="${c}">${c}</option>`).join('');
-      selLocalizacao.innerHTML = '<option value="">Todas as Localizações</option>' +
-        localizacoes.map(l => `<option value="${l}">${l}</option>`).join('');
       selMarca.innerHTML = '<option value="">Todas as Marcas</option>' +
         marcas.map(m => `<option value="${m}">${m}</option>`).join('');
     }
 
-    // Renderiza tabela de produtos com paginação
-    function renderizarTabela(lista) {
+    // Busca estoque por local para um produto
+    async function fetchEstoquePorLocal(produtoId) {
+      const res = await fetch(`https://projeto-estoque-production.up.railway.app/api/estoque_local/${produtoId}`, {
+        headers: { Authorization: 'Bearer ' + localStorage.getItem('token') }
+      });
+      if (!res.ok) return [];
+      return res.json();
+    }
+
+    // Renderiza tabela de produtos com estoque total
+    async function renderizarTabela(lista) {
       const tbody = document.querySelector('#tabelaProdutos tbody');
       const paginacao = document.getElementById('paginacaoProdutos');
       if (!lista.length) {
@@ -252,9 +261,19 @@
       const fim = inicio + itensPorPagina;
       const pagina = lista.slice(inicio, fim);
 
+      // Busca estoques por local para todos os produtos da página
+      const estoquesPorProduto = {};
+      await Promise.all(pagina.map(async produto => {
+        estoquesPorProduto[produto.id] = await fetchEstoquePorLocal(produto.id);
+      }));
+
       tbody.innerHTML = pagina.map(produto => {
-        // Verifica se está em alerta de estoque
-        const alertaEstoque = produto.estoque_atual !== null && produto.estoque_minimo !== null && produto.estoque_atual <= produto.estoque_minimo;
+        const estoques = estoquesPorProduto[produto.id] || [];
+        const estoqueTotal = estoques.reduce((soma, e) => soma + Number(e.quantidade), 0);
+        const alertaEstoque = estoques.some(e => {
+          const min = produto.estoque_minimo ?? 0;
+          return min > 0 && e.quantidade <= min;
+        });
         return `
           <tr data-id="${produto.id}">
             <td>
@@ -264,9 +283,9 @@
             <td>${produto.nome}</td>
             <td>${produto.categoria || '-'}</td>
             <td>${produto.marca || '-'}</td>
-            <td>${produto.localizacao_fisica || '-'}</td>
             <td>${formatarMoeda(produto.preco_venda)}</td>
-            <td>${produto.estoque_atual ?? '-'}</td>
+            <td>${estoqueTotal}</td>
+            <td>${produto.estoque_minimo ?? '-'}</td>
             <td>
               <a href="#" class="btn btn-sm btn-outline-info me-1 btn-visualizar-produto" title="Visualizar"><i class="bi bi-eye"></i></a>
               <a href="#" class="btn btn-sm btn-outline-primary me-1 btn-editar-produto" title="Editar"><i class="bi bi-pencil"></i></a>
@@ -313,7 +332,7 @@
     document.getElementById('filtroLocalizacao').addEventListener('change', aplicarFiltros);
     document.getElementById('filtroMarca').addEventListener('change', aplicarFiltros);
 
-    function aplicarFiltros() {
+    async function aplicarFiltros() {
       const termo = document.getElementById('filtroBusca').value.trim().toLowerCase();
       const categoria = document.getElementById('filtroCategoria').value;
       const localizacao = document.getElementById('filtroLocalizacao').value;
@@ -328,20 +347,38 @@
         );
       }
       if (categoria) filtrados = filtrados.filter(p => p.categoria === categoria);
-      if (localizacao) filtrados = filtrados.filter(p => p.localizacao_fisica === localizacao);
       if (marca) filtrados = filtrados.filter(p => p.marca === marca);
+
+      // Filtro por local: só mostra produtos que têm estoque > 0 no local selecionado
+      if (localizacao) {
+        const estoquesPorProduto = {};
+        await Promise.all(filtrados.map(async produto => {
+          estoquesPorProduto[produto.id] = await fetchEstoquePorLocal(produto.id);
+        }));
+        filtrados = filtrados.filter(p =>
+          (estoquesPorProduto[p.id] || []).some(e => String(e.localizacao_id) === String(localizacao) && e.quantidade > 0)
+        );
+      }
       renderizarTabela(filtrados);
     }
 
     // Visualizar estoque em alerta
-    document.getElementById('btn-estoque-alerta').addEventListener('click', function() {
-      const alerta = produtos.filter(p => p.estoque_atual !== null && p.estoque_minimo !== null && p.estoque_atual <= p.estoque_minimo);
+    document.getElementById('btn-estoque-alerta').addEventListener('click', async function() {
+      // Considera alerta se algum local está abaixo do estoque mínimo
+      const alerta = [];
+      await Promise.all(produtos.map(async p => {
+        const estoques = await fetchEstoquePorLocal(p.id);
+        if (estoques.some(e => {
+          const min = p.estoque_minimo ?? 0;
+          return min > 0 && e.quantidade <= min;
+        })) alerta.push(p);
+      }));
       paginaAtual = 1;
       renderizarTabela(alerta);
     });
 
     // Visualizar produto
-    document.getElementById('tabelaProdutos').addEventListener('click', function(e) {
+    document.getElementById('tabelaProdutos').addEventListener('click', async function(e) {
       if (e.target.closest('.btn-visualizar-produto')) {
         e.preventDefault();
         const tr = e.target.closest('tr');
@@ -353,12 +390,15 @@
         document.getElementById('visuDescricao').textContent = produto.descricao || '-';
         document.getElementById('visuCategoria').textContent = produto.categoria || '-';
         document.getElementById('visuMarca').textContent = produto.marca || '-';
-        document.getElementById('visuLocalizacao').textContent = produto.localizacao_fisica || '-';
         document.getElementById('visuPreco').textContent = produto.preco_venda !== undefined ? 'R$ ' + produto.preco_venda.toLocaleString('pt-BR', {minimumFractionDigits: 2}) : '-';
-        document.getElementById('visuEstoque').textContent = produto.estoque_atual ?? '-';
         document.getElementById('visuEstoqueMinimo').textContent = produto.estoque_minimo ?? '-';
         document.getElementById('visuEhKit').textContent = produto.eh_kit ? 'Sim' : 'Não';
         document.getElementById('visuQtdKit').textContent = produto.eh_kit ? (produto.quantidade_por_kit ?? '-') : '-';
+        // Estoque por local
+        const estoques = await fetchEstoquePorLocal(produto.id);
+        document.getElementById('visuEstoquePorLocal').innerHTML = estoques.length
+          ? '<ul class="mb-0">' + estoques.map(e => `<li>${e.local_nome}: <strong>${e.quantidade}</strong></li>`).join('') + '</ul>'
+          : '<span class="text-muted">Nenhum local</span>';
         const modal = new bootstrap.Modal(document.getElementById('modalVisualizarProduto'));
         modal.show();
       }
@@ -377,9 +417,7 @@
         document.getElementById('editarDescricao').value = produto.descricao || '';
         document.getElementById('editarCategoria').value = produto.categoria || '';
         document.getElementById('editarMarca').value = produto.marca || '';
-        document.getElementById('editarLocalizacao').value = produto.localizacao_fisica || '';
         document.getElementById('editarPreco').value = produto.preco_venda ?? '';
-        document.getElementById('editarEstoque').value = produto.estoque_atual ?? '';
         document.getElementById('editarEstoqueMinimo').value = produto.estoque_minimo ?? '';
         document.getElementById('editarEhKit').checked = !!produto.eh_kit;
         document.getElementById('editarQtdKit').value = produto.eh_kit ? (produto.quantidade_por_kit ?? '') : '';
@@ -405,9 +443,7 @@
       const descricao = document.getElementById('editarDescricao').value.trim();
       const categoria = document.getElementById('editarCategoria').value.trim();
       const marca = document.getElementById('editarMarca').value.trim();
-      const localizacao_fisica = document.getElementById('editarLocalizacao').value.trim();
       const preco_venda = parseFloat(document.getElementById('editarPreco').value);
-      const estoque_atual = parseInt(document.getElementById('editarEstoque').value, 10) || 0;
       const estoque_minimo = parseInt(document.getElementById('editarEstoqueMinimo').value, 10) || 0;
       const eh_kit = document.getElementById('editarEhKit').checked ? 1 : 0;
       const quantidade_por_kit = eh_kit ? parseInt(document.getElementById('editarQtdKit').value, 10) : null;
@@ -434,9 +470,7 @@
             descricao,
             categoria,
             marca,
-            localizacao_fisica,
             preco_venda,
-            estoque_atual,
             estoque_minimo,
             eh_kit,
             quantidade_por_kit
@@ -481,8 +515,8 @@
       }
     });
 
-    // Carrega produtos ao abrir a página
-    carregarProdutos().then(() => {
+    // Carrega locais e produtos ao abrir a página
+    carregarLocais().then(carregarProdutos).then(() => {
       // Alerta de estoque ao abrir a página, se necessário
       const urlParams = new URLSearchParams(window.location.search);
       if (urlParams.get('alerta') === '1') {
