@@ -30,12 +30,6 @@
           <label class="form-label">Quantidade <span class="text-danger">*</span></label>
           <input type="number" class="form-control" id="quantidade" min="1" required>
         </div>
-        <div class="col-md-3">
-          <label class="form-label">Local <span class="text-danger">*</span></label>
-          <select class="form-select" id="localSelect" required>
-            <option value="">Selecione o local</option>
-          </select>
-        </div>
       </div>
 
       <div class="row g-3 mb-4">
@@ -69,38 +63,16 @@
     verificarLogin({ redirect: '../index.html' });
     preencherSelectProdutos('produtoSelect', localStorage.getItem('token'));
 
-    // NOVO: Preencher locais
-    async function preencherSelectLocais(selectId, token) {
-      const select = document.getElementById(selectId);
-      select.innerHTML = '<option value="">Selecione o local</option>';
-      try {
-        const res = await fetch('https://projeto-estoque-production.up.railway.app/api/localizacoes', {
-          headers: { Authorization: 'Bearer ' + token }
-        });
-        if (res.ok) {
-          const locais = await res.json();
-          locais.forEach(local => {
-            const opt = document.createElement('option');
-            opt.value = local.id;
-            opt.textContent = local.nome;
-            select.appendChild(opt);
-          });
-        }
-      } catch {}
-    }
-    preencherSelectLocais('localSelect', localStorage.getItem('token'));
-
     document.getElementById('entrada-produto').addEventListener('submit', async function(event) {
       event.preventDefault();
       const produto_id = document.getElementById('produtoSelect').value;
       const quantidade = parseInt(document.getElementById('quantidade').value, 10);
-      const localizacao_id = document.getElementById('localSelect').value;
       const motivo = document.getElementById('motivo').value;
       const observacao = document.getElementById('observacao').value.trim();
 
       limparMensagens(['mensagem-erro', 'mensagem-sucesso']);
 
-      if (!produto_id || isNaN(quantidade) || quantidade < 1 || !motivo || !localizacao_id) {
+      if (!produto_id || isNaN(quantidade) || quantidade < 1 || !motivo) {
         exibirMensagem('mensagem-erro', 'Preencha todos os campos obrigatórios.', 'erro');
         return;
       }
@@ -118,7 +90,6 @@
             produto_id,
             tipo: 'entrada',
             quantidade,
-            localizacao_id, // NOVO: envia o local
             responsavel_id,
             motivo,
             observacao,

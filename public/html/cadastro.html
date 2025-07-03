@@ -47,6 +47,11 @@
           <input type="text" id="marca" class="form-control" list="listaMarcas">
           <datalist id="listaMarcas"></datalist>
         </div>
+        <div class="col-md-4">
+          <label for="localizacaoFisica" class="form-label">Localização física</label>
+          <input type="text" id="localizacaoFisica" class="form-control" list="listaLocalizacoes">
+          <datalist id="listaLocalizacoes"></datalist>
+        </div>
       </div>
 
       <div class="row g-3 mb-4">
@@ -55,14 +60,12 @@
           <input type="number" id="precoVenda" class="form-control" step="0.01" min="0" required>
         </div>
         <div class="col-md-4">
-          <label for="estoqueAtual" class="form-label">Estoque inicial</label>
-          <input type="number" id="estoqueAtual" class="form-control" min="0" required>
+          <label for="estoqueAtual" class="form-label">Estoque atual</label>
+          <input type="number" id="estoqueAtual" class="form-control" min="0">
         </div>
         <div class="col-md-4">
-          <label for="localizacaoInicial" class="form-label">Localização inicial <span class="text-danger">*</span></label>
-          <select id="localizacaoInicial" class="form-select" required>
-            <option value="">Selecione o local</option>
-          </select>
+          <label for="estoqueMinimo" class="form-label">Estoque mínimo</label>
+          <input type="number" id="estoqueMinimo" class="form-control" min="0">
         </div>
       </div>
 
@@ -99,27 +102,6 @@
     // Preenche datalists de categoria, marca e localização física
     preencherDatalistsProdutos(localStorage.getItem('token'));
 
-    // Função para preencher o select de localizações
-    async function preencherSelectLocais() {
-      const select = document.getElementById('localizacaoInicial');
-      select.innerHTML = '<option value="">Selecione o local</option>';
-      try {
-        const res = await fetch('https://projeto-estoque-production.up.railway.app/api/localizacoes', {
-          headers: { Authorization: 'Bearer ' + localStorage.getItem('token') }
-        });
-        if (res.ok) {
-          const locais = await res.json();
-          locais.forEach(local => {
-            const opt = document.createElement('option');
-            opt.value = local.id;
-            opt.textContent = local.nome;
-            select.appendChild(opt);
-          });
-        }
-      } catch {}
-    }
-    preencherSelectLocais();
-
     // Mostrar/ocultar campo de quantidade por kit
     document.getElementById('ehKit').addEventListener('change', function() {
       const container = document.getElementById('quantidadeKitContainer');
@@ -139,12 +121,12 @@
       const descricao = document.getElementById('descricao').value.trim();
       const categoria = document.getElementById('categoria').value.trim();
       const marca = document.getElementById('marca').value.trim();
+      const localizacao_fisica = document.getElementById('localizacaoFisica').value.trim();
       const preco_venda = parseFloat(document.getElementById('precoVenda').value);
-      const estoque_inicial = parseInt(document.getElementById('estoqueAtual').value, 10) || 0;
+      const estoque_atual = parseInt(document.getElementById('estoqueAtual').value, 10) || 0;
       const estoque_minimo = parseInt(document.getElementById('estoqueMinimo').value, 10) || 0;
       const eh_kit = document.getElementById('ehKit').checked ? 1 : 0;
       const quantidade_por_kit = eh_kit ? parseInt(document.getElementById('quantidadePorKit').value, 10) : null;
-      const localizacao_id = document.getElementById('localizacaoInicial').value;
 
       // Limpa mensagens
       exibirMensagem('mensagem-erro', '', 'erro');
@@ -169,7 +151,7 @@
         exibirMensagem('mensagem-erro', 'Informe a quantidade de itens por kit.', 'erro');
         return;
       }
-//
+
       try {
         const token = localStorage.getItem('token');
         const response = await fetch('https://projeto-estoque-production.up.railway.app/api/produtos', {
@@ -184,12 +166,12 @@
             descricao,
             categoria,
             marca,
+            localizacao_fisica,
             preco_venda,
-            estoque_inicial, // <-- novo nome
+            estoque_atual,
             estoque_minimo,
             eh_kit,
-            quantidade_por_kit,
-            localizacao_id
+            quantidade_por_kit
           })
         });
         const data = await response.json();

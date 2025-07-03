@@ -138,17 +138,7 @@
         if (resProdutos.ok) {
           const produtos = await resProdutos.json();
           cards[0].valor = produtos.length;
-          let qtdBaixo = 0;
-          for (const p of produtos) {
-            if (p.estoque_minimo !== null && p.estoque_minimo > 0) {
-              const resEstoque = await fetch(`https://projeto-estoque-production.up.railway.app/api/estoque_local/${p.id}`, {
-                headers: { Authorization: 'Bearer ' + token }
-              });
-              const estoques = resEstoque.ok ? await resEstoque.json() : [];
-              const estoqueTotal = estoques.reduce((soma, e) => soma + Number(e.quantidade), 0);
-              if (estoqueTotal <= p.estoque_minimo) qtdBaixo++;
-            }
-          }
+          const qtdBaixo = produtos.filter(p => p.estoque_atual !== null && p.estoque_minimo !== null && p.estoque_atual <= p.estoque_minimo).length;
           cards[1].valor = qtdBaixo;
         }
       } catch {}

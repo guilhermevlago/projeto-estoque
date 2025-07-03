@@ -45,7 +45,7 @@ async function preencherSelectProdutos(selectId, token) {
   try {
     const produtos = await fetchProdutos(token);
     select.innerHTML = '<option value="">Selecione um produto</option>' +
-      produtos.map(p => `<option value="${p.id}">${p.nome} (${p.sku})</option>`).join('');
+      produtos.map(p => `<option value="${p.id}">${p.nome} (${p.sku}) — Qtde: ${p.estoque_atual ?? 0}</option>`).join('');
   } catch {
     select.innerHTML = '<option value="">Erro ao carregar produtos</option>';
   }
