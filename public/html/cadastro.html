@@ -47,11 +47,6 @@
           <input type="text" id="marca" class="form-control" list="listaMarcas">
           <datalist id="listaMarcas"></datalist>
         </div>
-        <div class="col-md-4">
-          <label for="localizacaoFisica" class="form-label">Localização física</label>
-          <input type="text" id="localizacaoFisica" class="form-control" list="listaLocalizacoes">
-          <datalist id="listaLocalizacoes"></datalist>
-        </div>
       </div>
 
       <div class="row g-3 mb-4">
@@ -121,7 +116,6 @@
       const descricao = document.getElementById('descricao').value.trim();
       const categoria = document.getElementById('categoria').value.trim();
       const marca = document.getElementById('marca').value.trim();
-      const localizacao_fisica = document.getElementById('localizacaoFisica').value.trim();
       const preco_venda = parseFloat(document.getElementById('precoVenda').value);
       const estoque_atual = parseInt(document.getElementById('estoqueAtual').value, 10) || 0;
       const estoque_minimo = parseInt(document.getElementById('estoqueMinimo').value, 10) || 0;
@@ -166,7 +160,6 @@
             descricao,
             categoria,
             marca,
-            localizacao_fisica,
             preco_venda,
             estoque_atual,
             estoque_minimo,

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Cadastro de Local | Sistema de Estoque</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body>
+  <div class="container py-4">
+    <h2 class="mb-4">Cadastro de Local Físico</h2>
+    <form id="form-local" class="mb-4">
+      <div class="mb-3">
+        <label for="nomeLocal" class="form-label">Nome do Local <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" id="nomeLocal" required maxlength="100">
+      </div>
+      <div class="mb-3">
+        <label for="descricaoLocal" class="form-label">Descrição</label>
+        <input type="text" class="form-control" id="descricaoLocal" maxlength="255">
+      </div>
+      <button type="submit" class="btn btn-success">Cadastrar Local</button>
+      <span id="msg-local" class="ms-3"></span>
+    </form>
+
+    <h4 class="mb-3">Locais Cadastrados</h4>
+    <table class="table table-bordered table-striped" id="tabela-locais">
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Descrição</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Locais serão preenchidos via JS -->
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    const token = localStorage.getItem('token');
+    const apiUrl = 'https://projeto-estoque-production.up.railway.app/api/localizacoes';
+
+    async function carregarLocais() {
+      const tbody = document.querySelector('#tabela-locais tbody');
+      tbody.innerHTML = '';
+      try {
+        const res = await fetch(apiUrl, { headers: { Authorization: 'Bearer ' + token } });
+        if (res.ok) {
+          const locais = await res.json();
+          locais.forEach(local => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${local.nome}</td>
+              <td>${local.descricao || ''}</td>
+              <td>
+                <button class="btn btn-sm btn-primary me-1" onclick="editarLocal(${local.id}, '${local.nome.replace(/'/g, "\\'")}', '${(local.descricao || '').replace(/'/g, "\\'")}')"><i class="bi bi-pencil"></i></button>
+                <button class="btn btn-sm btn-danger" onclick="removerLocal(${local.id})"><i class="bi bi-trash"></i></button>
+              </td>
+            `;
+            tbody.appendChild(tr);
+          });
+        }
+      } catch (e) {
+        tbody.innerHTML = '<tr><td colspan="3" class="text-danger">Erro ao carregar locais.</td></tr>';
+      }
+    }
+
+    document.getElementById('form-local').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const nome = document.getElementById('nomeLocal').value.trim();
+      const descricao = document.getElementById('descricaoLocal').value.trim();
+      const msg = document.getElementById('msg-local');
+      msg.textContent = '';
+      try {
+        const res = await fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + token
+          },
+          body: JSON.stringify({ nome, descricao })
+        });
+        if (res.ok) {
+          msg.textContent = 'Local cadastrado!';
+          msg.className = 'text-success ms-3';
+          this.reset();
+          carregarLocais();
+        } else {
+          const data = await res.json();
+          msg.textContent = data.error || 'Erro ao cadastrar.';
+          msg.className = 'text-danger ms-3';
+        }
+      } catch {
+        msg.textContent = 'Erro ao conectar ao servidor.';
+        msg.className = 'text-danger ms-3';
+      }
+    });
+
+    window.editarLocal = function(id, nome, descricao) {
+      document.getElementById('nomeLocal').value = nome;
+      document.getElementById('descricaoLocal').value = descricao;
+      document.getElementById('form-local').onsubmit = async function(e) {
+        e.preventDefault();
+        const novoNome = document.getElementById('nomeLocal').value.trim();
+        const novaDescricao = document.getElementById('descricaoLocal').value.trim();
+        const msg = document.getElementById('msg-local');
+        msg.textContent = '';
+        try {
+          const res = await fetch(`${apiUrl}/${id}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: 'Bearer ' + token
+            },
+            body: JSON.stringify({ nome: novoNome, descricao: novaDescricao })
+          });
+          if (res.ok) {
+            msg.textContent = 'Local atualizado!';
+            msg.className = 'text-success ms-3';
+            this.reset();
+            this.onsubmit = null;
+            carregarLocais();
+          } else {
+            const data = await res.json();
+            msg.textContent = data.error || 'Erro ao atualizar.';
+            msg.className = 'text-danger ms-3';
+          }
+        } catch {
+          msg.textContent = 'Erro ao conectar ao servidor.';
+          msg.className = 'text-danger ms-3';
+        }
+      };
+    };
+
+    window.removerLocal = async function(id) {
+      if (!confirm('Deseja remover este local?')) return;
+      try {
+        const res = await fetch(`${apiUrl}/${id}`, {
+          method: 'DELETE',
+          headers: { Authorization: 'Bearer ' + token }
+        });
+        if (res.ok) {
+          carregarLocais();
+        }
+      } catch {}
+    };
+
+    carregarLocais();
+  </script>
+</body>
+</html>
