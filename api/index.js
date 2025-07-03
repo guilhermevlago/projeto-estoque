@@ -24,6 +24,7 @@ app.use('/api/usuarios', autenticar, autorizar([3]), require('./routes/usuarios'
 app.use('/api/produtos', autenticar, autorizar([1, 2, 3]), require('./routes/produtos'));
 app.use('/api/movimentacoes', autenticar, autorizar([1, 2, 3]), require('./routes/movimentacoes'));
 app.use('/api/estoque_local', autenticar, autorizar([1,2,3]), require('./routes/estoque_local'));
+app.use('/api/localizacoes', autenticar, autorizar([1,2,3]), require('./routes/localizacoes'));
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 

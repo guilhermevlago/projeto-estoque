@@ -140,7 +140,7 @@
       const categoria = document.getElementById('categoria').value.trim();
       const marca = document.getElementById('marca').value.trim();
       const preco_venda = parseFloat(document.getElementById('precoVenda').value);
-      const estoque_atual = parseInt(document.getElementById('estoqueAtual').value, 10) || 0;
+      const estoque_inicial = parseInt(document.getElementById('estoqueAtual').value, 10) || 0;
       const estoque_minimo = parseInt(document.getElementById('estoqueMinimo').value, 10) || 0;
       const eh_kit = document.getElementById('ehKit').checked ? 1 : 0;
       const quantidade_por_kit = eh_kit ? parseInt(document.getElementById('quantidadePorKit').value, 10) : null;
@@ -185,11 +185,11 @@
             categoria,
             marca,
             preco_venda,
-            estoque_atual,
+            estoque_inicial, // <-- novo nome
             estoque_minimo,
             eh_kit,
             quantidade_por_kit,
-            localizacao_id // NOVO!
+            localizacao_id
           })
         });
         const data = await response.json();

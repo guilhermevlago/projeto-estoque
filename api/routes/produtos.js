@@ -28,11 +28,11 @@ router.get('/:id', async (req, res) => {
 router.post('/', autorizar([2, 3]), async (req, res) => {
   const {
     sku, nome, descricao, categoria, marca,
-    preco_venda, estoque_atual,
-    estoque_minimo, eh_kit, quantidade_por_kit, localizacao_id // novo: localizacao_id para estoque inicial
+    preco_venda, estoque_inicial, // <-- novo nome
+    estoque_minimo, eh_kit, quantidade_por_kit, localizacao_id
   } = req.body;
 
-  if (!sku || !nome || isNaN(preco_venda) || preco_venda <= 0 || (estoque_atual !== undefined && estoque_atual < 0) || (estoque_minimo !== undefined && estoque_minimo < 0)) {
+  if (!sku || !nome || isNaN(preco_venda) || preco_venda <= 0 || (estoque_inicial !== undefined && estoque_inicial < 0) || (estoque_minimo !== undefined && estoque_minimo < 0)) {
     return res.status(400).json({ error: 'Campos obrigatórios não informados ou valores negativos.' });
   }
 
@@ -40,7 +40,7 @@ router.post('/', autorizar([2, 3]), async (req, res) => {
   try {
     await conn.beginTransaction();
 
-    // Insere o produto (sem campo localizacao_fisica)
+    // Insere o produto (sem estoque_atual)
     const [result] = await conn.query(
       `INSERT INTO produto (sku, nome, descricao, categoria, marca, preco_venda, estoque_minimo, eh_kit, quantidade_por_kit)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -49,11 +49,11 @@ router.post('/', autorizar([2, 3]), async (req, res) => {
     const novoProdutoId = result.insertId;
 
     // Se informado estoque inicial e local, insere em estoque_local
-    if (estoque_atual && localizacao_id) {
+    if (estoque_inicial && localizacao_id) {
       await conn.query(
         `INSERT INTO estoque_local (produto_id, localizacao_id, quantidade)
          VALUES (?, ?, ?)`,
-        [novoProdutoId, localizacao_id, estoque_atual]
+        [novoProdutoId, localizacao_id, estoque_inicial]
       );
     }
 
@@ -64,8 +64,8 @@ router.post('/', autorizar([2, 3]), async (req, res) => {
         VALUES (?, 'cadastro', ?, ?, 'Cadastro de produto', '')`,
       [
         novoProdutoId,
-        estoque_atual || 0,
-        req.user.id, // O id do usuário logado (vem do middleware auth)
+        estoque_inicial || 0,
+        req.user.id,
       ]
     );
 
