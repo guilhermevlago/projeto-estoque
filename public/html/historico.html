@@ -66,6 +66,7 @@
               <th>Ação</th>
               <th>Quantidade</th>
               <th>Responsável</th>
+              <th>Local</th>
               <th>Detalhes</th>
             </tr>
           </thead>
@@ -128,7 +129,7 @@
     // Carrega movimentações da API
     async function carregarMovimentacoes() {
       const tbody = document.querySelector('#tabelaHistorico tbody');
-      tbody.innerHTML = '<tr><td colspan="7">Carregando...</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="8">Carregando...</td></tr>';
       try {
         const res = await fetch('https://projeto-estoque-production.up.railway.app/api/movimentacoes', {
           headers: { Authorization: 'Bearer ' + token }
@@ -137,10 +138,10 @@
           movimentacoes = await res.json();
           renderizarTabela(movimentacoes);
         } else {
-          tbody.innerHTML = '<tr><td colspan="7" class="text-danger">Erro ao carregar movimentações.</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="8" class="text-danger">Erro ao carregar movimentações.</td></tr>';
         }
       } catch {
-        tbody.innerHTML = '<tr><td colspan="7" class="text-danger">Erro ao conectar ao servidor.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" class="text-danger">Erro ao conectar ao servidor.</td></tr>';
       }
     }
 
@@ -149,7 +150,7 @@
       const tbody = document.querySelector('#tabelaHistorico tbody');
       const paginacao = document.getElementById('paginacaoHistorico');
       if (!lista.length) {
-        tbody.innerHTML = '<tr><td colspan="7" class="text-center">Nenhuma movimentação encontrada.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" class="text-center">Nenhuma movimentação encontrada.</td></tr>';
         paginacao.innerHTML = '';
         return;
       }
@@ -194,6 +195,7 @@
             <td>${badge}</td>
             <td>${mov.quantidade ?? '-'}</td>
             <td>${mov.responsavel_nome || '-'}</td>
+            <td>${mov.local_nome || '-'}</td>
             <td>
               <button class="btn btn-sm btn-outline-primary btn-detalhes" title="Visualizar Detalhes" data-bs-toggle="modal" data-bs-target="#modalDetalhes">
                 <i class="bi bi-eye"></i>
@@ -287,6 +289,7 @@
           <p><strong>Ação:</strong> ${tr.children[3].innerText}</p>
           <p><strong>Quantidade:</strong> ${tr.children[4].textContent}</p>
           <p><strong>Responsável:</strong> ${tr.children[5].textContent}</p>
+          <p><strong>Local:</strong> ${tr.children[6].textContent}</p>
         `;
         if (tipo === 'entrada' || tipo === 'saida') {
           html += `<p><strong>Motivo:</strong> ${tr.getAttribute('data-motivo') || '-'}</p>`;
