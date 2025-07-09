@@ -26,36 +26,6 @@ async function fetchLocaisAtivos(token) {
   return locais.filter(l => l.ativo);
 }
 
-// Preenche datalists de categoria, marca e localização física
-async function preencherDatalistsProdutos(token) {
-  try {
-    const produtos = await fetchProdutos(token);
-    // Categoria
-    const categorias = [...new Set(produtos.map(p => p.categoria).filter(Boolean))];
-    if (document.getElementById('listaCategorias')) {
-      document.getElementById('listaCategorias').innerHTML = categorias.map(c => `<option value="${c}">`).join('');
-    }
-    // Marca
-    const marcas = [...new Set(produtos.map(p => p.marca).filter(Boolean))];
-    if (document.getElementById('listaMarcas')) {
-      document.getElementById('listaMarcas').innerHTML = marcas.map(m => `<option value="${m}">`).join('');
-    }
-    // Localização física - usar locais cadastrados
-    try {
-      const locais = await fetchLocaisAtivos(token);
-      if (document.getElementById('listaLocalizacoes')) {
-        document.getElementById('listaLocalizacoes').innerHTML = locais.map(l => `<option value="${l.nome}">`).join('');
-      }
-    } catch {
-      // Se der erro, usar método antigo
-      const locais = [...new Set(produtos.map(p => p.localizacao_fisica).filter(Boolean))];
-      if (document.getElementById('listaLocalizacoes')) {
-        document.getElementById('listaLocalizacoes').innerHTML = locais.map(l => `<option value="${l}">`).join('');
-      }
-    }
-  } catch {}
-}
-
 // Preenche um <select> com produtos (usado em entrada/saida)
 async function preencherSelectProdutos(selectId, token) {
   const select = document.getElementById(selectId);
@@ -66,6 +36,19 @@ async function preencherSelectProdutos(selectId, token) {
       produtos.map(p => `<option value="${p.id}">${p.nome} (${p.sku}) — Qtde: ${p.estoque_atual ?? 0}</option>`).join('');
   } catch {
     select.innerHTML = '<option value="">Erro ao carregar produtos</option>';
+  }
+}
+
+// Preenche um <select> com locais ativos (usado no cadastro)
+async function preencherSelectLocais(selectId, token) {
+  const select = document.getElementById(selectId);
+  if (!select) return;
+  try {
+    const locais = await fetchLocaisAtivos(token);
+    select.innerHTML = '<option value="">Selecione um local</option>' +
+      locais.map(l => `<option value="${l.nome}">${l.nome}</option>`).join('');
+  } catch {
+    select.innerHTML = '<option value="">Erro ao carregar locais</option>';
   }
 }
 

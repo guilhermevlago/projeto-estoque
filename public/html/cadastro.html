@@ -49,8 +49,9 @@
         </div>
         <div class="col-md-4">
           <label for="localizacaoFisica" class="form-label">Localização física</label>
-          <input type="text" id="localizacaoFisica" class="form-control" list="listaLocalizacoes">
-          <datalist id="listaLocalizacoes"></datalist>
+          <select id="localizacaoFisica" class="form-select">
+            <option value="">Selecione um local</option>
+          </select>
         </div>
       </div>
 
@@ -99,8 +100,13 @@
     // Verifica login (nível 2 ou 3)
     verificarLogin({ redirect: 'inicio.html', perfilPermitido: ['2', '3'] });
 
-    // Preenche datalists de categoria, marca e localização física
-    preencherDatalistsProdutos(localStorage.getItem('token'));
+    const token = localStorage.getItem('token');
+
+    // Preenche datalists de categoria e marca
+    preencherDatalistsProdutos(token);
+    
+    // Preenche select de localização física com locais ativos
+    preencherSelectLocais('localizacaoFisica', token);
 
     // Mostrar/ocultar campo de quantidade por kit
     document.getElementById('ehKit').addEventListener('change', function() {
@@ -153,7 +159,6 @@
       }
 
       try {
-        const token = localStorage.getItem('token');
         const response = await fetch('https://projeto-estoque-production.up.railway.app/api/produtos', {
           method: 'POST',
           headers: {
@@ -179,6 +184,8 @@
           exibirMensagem('mensagem-sucesso', 'Produto cadastrado com sucesso!', 'sucesso');
           document.getElementById('produto').reset();
           document.getElementById('quantidadeKitContainer').style.display = 'none';
+          // Recarrega o select de localização após reset
+          preencherSelectLocais('localizacaoFisica', token);
         } else {
           exibirMensagem('mensagem-erro', data.error || 'Erro ao cadastrar produto.', 'erro');
         }

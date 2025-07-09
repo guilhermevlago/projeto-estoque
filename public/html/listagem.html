@@ -153,7 +153,9 @@
             </div>
             <div class="mb-3">
               <label class="form-label">Localização</label>
-              <input type="text" class="form-control" id="editarLocalizacao" required>
+              <select class="form-control" id="editarLocalizacao" required>
+                <option value="">Selecione um local</option>
+              </select>
             </div>
             <div class="mb-3">
               <label class="form-label">Preço de Venda</label>
@@ -218,21 +220,31 @@
     }
 
     // Preenche selects de filtro de categoria, localização e marca
-    function preencherFiltros(lista) {
+    async function preencherFiltros(lista) {
       const categorias = [...new Set(lista.map(p => p.categoria).filter(Boolean))].sort();
-      const localizacoes = [...new Set(lista.map(p => p.localizacao_fisica).filter(Boolean))].sort();
       const marcas = [...new Set(lista.map(p => p.marca).filter(Boolean))].sort();
 
       const selCategoria = document.getElementById('filtroCategoria');
-      const selLocalizacao = document.getElementById('filtroLocalizacao');
       const selMarca = document.getElementById('filtroMarca');
 
       selCategoria.innerHTML = '<option value="">Todas as Categorias</option>' +
         categorias.map(c => `<option value="${c}">${c}</option>`).join('');
-      selLocalizacao.innerHTML = '<option value="">Todas as Localizações</option>' +
-        localizacoes.map(l => `<option value="${l}">${l}</option>`).join('');
       selMarca.innerHTML = '<option value="">Todas as Marcas</option>' +
         marcas.map(m => `<option value="${m}">${m}</option>`).join('');
+
+      // Carrega localizações dos locais cadastrados
+      try {
+        const locais = await fetchLocaisAtivos(localStorage.getItem('token'));
+        const selLocalizacao = document.getElementById('filtroLocalizacao');
+        selLocalizacao.innerHTML = '<option value="">Todas as Localizações</option>' +
+          locais.map(l => `<option value="${l.nome}">${l.nome}</option>`).join('');
+      } catch {
+        // Se der erro, usa método antigo
+        const localizacoes = [...new Set(lista.map(p => p.localizacao_fisica).filter(Boolean))].sort();
+        const selLocalizacao = document.getElementById('filtroLocalizacao');
+        selLocalizacao.innerHTML = '<option value="">Todas as Localizações</option>' +
+          localizacoes.map(l => `<option value="${l}">${l}</option>`).join('');
+      }
     }
 
     // Renderiza tabela de produtos com paginação
@@ -372,12 +384,18 @@
         const id = tr.getAttribute('data-id');
         const produto = produtos.find(p => p.id == id);
         if (!produto) return;
+        
+        // Preenche o select de localização primeiro
+        preencherSelectLocais('editarLocalizacao', localStorage.getItem('token')).then(() => {
+          // Depois define o valor selecionado
+          document.getElementById('editarLocalizacao').value = produto.localizacao_fisica || '';
+        });
+        
         document.getElementById('editarSku').value = produto.sku;
         document.getElementById('editarNome').value = produto.nome;
         document.getElementById('editarDescricao').value = produto.descricao || '';
         document.getElementById('editarCategoria').value = produto.categoria || '';
         document.getElementById('editarMarca').value = produto.marca || '';
-        document.getElementById('editarLocalizacao').value = produto.localizacao_fisica || '';
         document.getElementById('editarPreco').value = produto.preco_venda ?? '';
         document.getElementById('editarEstoque').value = produto.estoque_atual ?? '';
         document.getElementById('editarEstoqueMinimo').value = produto.estoque_minimo ?? '';
