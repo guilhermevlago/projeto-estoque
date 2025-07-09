@@ -16,6 +16,16 @@ async function fetchProdutos(token) {
   return res.json();
 }
 
+// Função para buscar locais ativos
+async function fetchLocaisAtivos(token) {
+  const res = await fetch('https://projeto-estoque-production.up.railway.app/api/locais', {
+    headers: { Authorization: 'Bearer ' + token }
+  });
+  if (!res.ok) throw new Error('Erro ao buscar locais');
+  const locais = await res.json();
+  return locais.filter(l => l.ativo);
+}
+
 // Preenche datalists de categoria, marca e localização física
 async function preencherDatalistsProdutos(token) {
   try {
@@ -30,10 +40,18 @@ async function preencherDatalistsProdutos(token) {
     if (document.getElementById('listaMarcas')) {
       document.getElementById('listaMarcas').innerHTML = marcas.map(m => `<option value="${m}">`).join('');
     }
-    // Localização física
-    const locais = [...new Set(produtos.map(p => p.localizacao_fisica).filter(Boolean))];
-    if (document.getElementById('listaLocalizacoes')) {
-      document.getElementById('listaLocalizacoes').innerHTML = locais.map(l => `<option value="${l}">`).join('');
+    // Localização física - usar locais cadastrados
+    try {
+      const locais = await fetchLocaisAtivos(token);
+      if (document.getElementById('listaLocalizacoes')) {
+        document.getElementById('listaLocalizacoes').innerHTML = locais.map(l => `<option value="${l.nome}">`).join('');
+      }
+    } catch {
+      // Se der erro, usar método antigo
+      const locais = [...new Set(produtos.map(p => p.localizacao_fisica).filter(Boolean))];
+      if (document.getElementById('listaLocalizacoes')) {
+        document.getElementById('listaLocalizacoes').innerHTML = locais.map(l => `<option value="${l}">`).join('');
+      }
     }
   } catch {}
 }
