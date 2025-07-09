@@ -20,10 +20,66 @@
     <h1 class="mb-4">Visão Geral</h1>
     <div id="boas-vindas" class="mb-4"></div>
     
+    <!-- Dashboard Cards (para níveis 2 e 3) -->
     <div class="row g-4" id="dashboard-cards">
       <!-- Cards do dashboard serão preenchidos via JS -->
     </div>
 
+    <!-- Seção para Operadores (Nível 1) -->
+    <div id="secao-operador" style="display: none;">
+      <!-- Botões de Ação Rápida -->
+      <div class="row g-3 mb-4">
+        <div class="col-md-6">
+          <a href="entrada.html" class="btn btn-success btn-lg w-100 d-flex align-items-center justify-content-center gap-2">
+            <i class="bi bi-plus-circle-fill"></i>
+            <span>Nova Entrada</span>
+          </a>
+        </div>
+        <div class="col-md-6">
+          <a href="saida.html" class="btn btn-danger btn-lg w-100 d-flex align-items-center justify-content-center gap-2">
+            <i class="bi bi-dash-circle-fill"></i>
+            <span>Nova Saída</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Listagem Simplificada de Produtos -->
+      <div class="bg-white p-4 rounded-4 shadow-sm">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="mb-0">Produtos</h5>
+          <input type="text" class="form-control" id="busca-rapida" placeholder="Buscar produto..." style="max-width: 300px;">
+        </div>
+        
+        <div class="table-responsive">
+          <table class="table table-hover align-middle" id="tabela-produtos-simples">
+            <thead class="table-light">
+              <tr>
+                <th>SKU</th>
+                <th>Nome</th>
+                <th>Categoria</th>
+                <th>Localização</th>
+                <th>Estoque</th>
+                <th class="text-center">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Conteúdo preenchido via JS -->
+            </tbody>
+          </table>
+        </div>
+        
+        <div id="paginacao-simples" class="mt-3 d-flex justify-content-center"></div>
+        
+        <div class="text-center mt-3">
+          <a href="listagem.html" class="btn btn-outline-primary">
+            <i class="bi bi-eye"></i>
+            Ver Listagem Completa
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Últimas Movimentações (para níveis 2 e 3) -->
     <div class="mt-4 bg-white p-4 rounded-4 shadow-sm" id="ultimas-movimentacoes">
       <h5 class="mb-3">Últimas Movimentações</h5>
       <div class="table-responsive">
@@ -52,110 +108,246 @@
 
     const nome = localStorage.getItem('nome');
     const perfil = localStorage.getItem('perfil');
-    const token = localStorage.getItem('token'); // <-- Adicione esta linha!
+    const token = localStorage.getItem('token');
 
     // Exibe boas-vindas
     if (nome) {
       document.getElementById('boas-vindas').innerHTML = `<h5>Bem-vindo(a), <span class="text-primary">${nome}</span>!</h5>`;
     }
 
-    // Se for nível 1, esconde cards e movimentações
+    // Configuração baseada no perfil
     if (perfil === '1') {
+      // Nível 1: Esconde dashboard e movimentações, mostra seção do operador
       document.getElementById('dashboard-cards').style.display = 'none';
       document.getElementById('ultimas-movimentacoes').style.display = 'none';
+      document.getElementById('secao-operador').style.display = 'block';
+      
+      // Carrega listagem simplificada para operadores
+      carregarProdutosSimples();
     } else {
-      // Busca dados do dashboard
-      async function carregarDashboard() {
-        const cards = [
-          { titulo: 'Produtos Cadastrados', valor: '-', cor: 'primary', link: 'listagem.html', texto: 'Ver Todos' },
-          { titulo: 'Estoque Baixo', valor: '-', cor: 'danger', link: 'listagem.html?alerta=1', texto: 'Ver Detalhes' },
-          { titulo: 'Entradas no Mês', valor: '-', cor: 'success', link: 'historico.html?acao=entrada', texto: 'Ver Entradas' },
-          { titulo: 'Saídas no Mês', valor: '-', cor: 'warning', link: 'historico.html?acao=saida', texto: 'Ver Saídas' }
-        ];
-
-        try {
-          const resProdutos = await fetch('https://projeto-estoque-production.up.railway.app/api/produtos', {
-            headers: { Authorization: 'Bearer ' + token }
-          });
-          if (resProdutos.ok) {
-            const produtos = await resProdutos.json();
-            cards[0].valor = produtos.length;
-            cards[1].valor = produtos.filter(p => p.estoque_atual !== null && p.estoque_minimo !== null && p.estoque_atual <= p.estoque_minimo).length;
-          }
-        } catch {}
-
-        try {
-          const resMov = await fetch('https://projeto-estoque-production.up.railway.app/api/movimentacoes', {
-            headers: { Authorization: 'Bearer ' + token }
-          });
-          if (resMov.ok) {
-            const movs = await resMov.json();
-            const mesAtual = new Date().getMonth() + 1;
-            const anoAtual = new Date().getFullYear();
-            cards[2].valor = movs.filter(m => m.tipo === 'entrada' && new Date(m.created_at).getMonth() + 1 === mesAtual && new Date(m.created_at).getFullYear() === anoAtual).length;
-            cards[3].valor = movs.filter(m => m.tipo === 'saida' && new Date(m.created_at).getMonth() + 1 === mesAtual && new Date(m.created_at).getFullYear() === anoAtual).length;
-          }
-        } catch {}
-
-        document.getElementById('dashboard-cards').innerHTML = cards.map(card => `
-          <div class="col-md-6 col-lg-3">
-            <div class="card h-100 border-0 shadow-sm">
-              <div class="card-body text-center">
-                <h5 class="card-title">${card.titulo}</h5>
-                <p class="display-4 text-${card.cor}">${card.valor}</p>
-                <a href="${card.link}" class="btn btn-sm btn-outline-${card.cor}">${card.texto}</a>
-              </div>
-            </div>
-          </div>
-        `).join('');
-      }
-
-      // Busca últimas movimentações
-      async function carregarMovimentacoes() {
-        const tbody = document.querySelector('#tabela-movimentacoes tbody');
-        tbody.innerHTML = '<tr><td colspan="5">Carregando...</td></tr>';
-        try {
-          const res = await fetch('https://projeto-estoque-production.up.railway.app/api/movimentacoes', {
-            headers: { Authorization: 'Bearer ' + token }
-          });
-          if (res.ok) {
-            const movs = await res.json();
-            movs.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-            const ultimas = movs.slice(0, 5);
-            if (ultimas.length === 0) {
-              tbody.innerHTML = '<tr><td colspan="5" class="text-center">Nenhuma movimentação encontrada.</td></tr>';
-            } else {
-              tbody.innerHTML = ultimas.map(mov => `
-                <tr>
-                  <td>${new Date(mov.created_at).toLocaleDateString('pt-BR')}</td>
-                  <td>${mov.produto_nome || '-'}</td>
-                  <td>
-                    ${
-                      mov.tipo === 'entrada'
-                        ? '<span class="badge bg-success">Entrada</span>'
-                        : mov.tipo === 'saida'
-                          ? '<span class="badge bg-danger">Saída</span>'
-                          : mov.tipo === 'edicao'
-                            ? '<span class="badge bg-info text-dark">Edição</span>'
-                            : `<span class="badge bg-primary">${mov.tipo ? mov.tipo.charAt(0).toUpperCase() + mov.tipo.slice(1) : '-'}</span>`
-                    }
-                  </td>
-                  <td>${mov.quantidade}</td>
-                  <td>${mov.responsavel_nome || '-'}</td>
-                </tr>
-              `).join('');
-            }
-          } else {
-            tbody.innerHTML = '<tr><td colspan="5" class="text-danger">Erro ao carregar movimentações.</td></tr>';
-          }
-        } catch {
-          tbody.innerHTML = '<tr><td colspan="5" class="text-danger">Erro ao conectar ao servidor.</td></tr>';
-        }
-      }
-
+      // Níveis 2 e 3: Mostra dashboard completo
+      document.getElementById('secao-operador').style.display = 'none';
       carregarDashboard();
       carregarMovimentacoes();
+    }
 
+    // Busca dados do dashboard (níveis 2 e 3)
+    async function carregarDashboard() {
+      const cards = [
+        { titulo: 'Produtos Cadastrados', valor: '-', cor: 'primary', link: 'listagem.html', texto: 'Ver Todos' },
+        { titulo: 'Estoque Baixo', valor: '-', cor: 'danger', link: 'listagem.html?alerta=1', texto: 'Ver Detalhes' },
+        { titulo: 'Entradas no Mês', valor: '-', cor: 'success', link: 'historico.html?acao=entrada', texto: 'Ver Entradas' },
+        { titulo: 'Saídas no Mês', valor: '-', cor: 'warning', link: 'historico.html?acao=saida', texto: 'Ver Saídas' }
+      ];
+
+      try {
+        const resProdutos = await fetch('https://projeto-estoque-production.up.railway.app/api/produtos', {
+          headers: { Authorization: 'Bearer ' + token }
+        });
+        if (resProdutos.ok) {
+          const produtos = await resProdutos.json();
+          cards[0].valor = produtos.length;
+          cards[1].valor = produtos.filter(p => p.estoque_atual !== null && p.estoque_minimo !== null && p.estoque_atual <= p.estoque_minimo).length;
+        }
+      } catch {}
+
+      try {
+        const resMov = await fetch('https://projeto-estoque-production.up.railway.app/api/movimentacoes', {
+          headers: { Authorization: 'Bearer ' + token }
+        });
+        if (resMov.ok) {
+          const movs = await resMov.json();
+          const mesAtual = new Date().getMonth() + 1;
+          const anoAtual = new Date().getFullYear();
+          cards[2].valor = movs.filter(m => m.tipo === 'entrada' && new Date(m.created_at).getMonth() + 1 === mesAtual && new Date(m.created_at).getFullYear() === anoAtual).length;
+          cards[3].valor = movs.filter(m => m.tipo === 'saida' && new Date(m.created_at).getMonth() + 1 === mesAtual && new Date(m.created_at).getFullYear() === anoAtual).length;
+        }
+      } catch {}
+
+      document.getElementById('dashboard-cards').innerHTML = cards.map(card => `
+        <div class="col-md-6 col-lg-3">
+          <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body text-center">
+              <h5 class="card-title">${card.titulo}</h5>
+              <p class="display-4 text-${card.cor}">${card.valor}</p>
+              <a href="${card.link}" class="btn btn-sm btn-outline-${card.cor}">${card.texto}</a>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Busca últimas movimentações (níveis 2 e 3)
+    async function carregarMovimentacoes() {
+      const tbody = document.querySelector('#tabela-movimentacoes tbody');
+      tbody.innerHTML = '<tr><td colspan="5">Carregando...</td></tr>';
+      try {
+        const res = await fetch('https://projeto-estoque-production.up.railway.app/api/movimentacoes', {
+          headers: { Authorization: 'Bearer ' + token }
+        });
+        if (res.ok) {
+          const movs = await res.json();
+          movs.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+          const ultimas = movs.slice(0, 5);
+          if (ultimas.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center">Nenhuma movimentação encontrada.</td></tr>';
+          } else {
+            tbody.innerHTML = ultimas.map(mov => `
+              <tr>
+                <td>${new Date(mov.created_at).toLocaleDateString('pt-BR')}</td>
+                <td>${mov.produto_nome || '-'}</td>
+                <td>
+                  ${
+                    mov.tipo === 'entrada'
+                      ? '<span class="badge bg-success">Entrada</span>'
+                      : mov.tipo === 'saida'
+                        ? '<span class="badge bg-danger">Saída</span>'
+                        : mov.tipo === 'edicao'
+                          ? '<span class="badge bg-info text-dark">Edição</span>'
+                          : `<span class="badge bg-primary">${mov.tipo ? mov.tipo.charAt(0).toUpperCase() + mov.tipo.slice(1) : '-'}</span>`
+                  }
+                </td>
+                <td>${mov.quantidade}</td>
+                <td>${mov.responsavel_nome || '-'}</td>
+              </tr>
+            `).join('');
+          }
+        } else {
+          tbody.innerHTML = '<tr><td colspan="5" class="text-danger">Erro ao carregar movimentações.</td></tr>';
+        }
+      } catch {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-danger">Erro ao conectar ao servidor.</td></tr>';
+      }
+    }
+
+    // Carrega produtos simplificados (nível 1)
+    let produtosSimples = [];
+    let paginaAtualSimples = 1;
+    const itensPorPaginaSimples = 10;
+
+    async function carregarProdutosSimples() {
+      const tbody = document.querySelector('#tabela-produtos-simples tbody');
+      tbody.innerHTML = '<tr><td colspan="6">Carregando...</td></tr>';
+      
+      try {
+        const res = await fetch('https://projeto-estoque-production.up.railway.app/api/produtos', {
+          headers: { Authorization: 'Bearer ' + token }
+        });
+        
+        if (res.ok) {
+          produtosSimples = await res.json();
+          renderizarTabelaSimples(produtosSimples);
+        } else {
+          tbody.innerHTML = '<tr><td colspan="6" class="text-danger">Erro ao carregar produtos.</td></tr>';
+        }
+      } catch {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-danger">Erro ao conectar ao servidor.</td></tr>';
+      }
+    }
+
+    // Renderiza tabela simplificada com paginação
+    function renderizarTabelaSimples(lista) {
+      const tbody = document.querySelector('#tabela-produtos-simples tbody');
+      const paginacao = document.getElementById('paginacao-simples');
+      
+      if (!lista.length) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center">Nenhum produto encontrado.</td></tr>';
+        paginacao.innerHTML = '';
+        return;
+      }
+
+      // Paginação
+      const totalPaginas = Math.ceil(lista.length / itensPorPaginaSimples);
+      if (paginaAtualSimples > totalPaginas) paginaAtualSimples = totalPaginas;
+      if (paginaAtualSimples < 1) paginaAtualSimples = 1;
+      
+      const inicio = (paginaAtualSimples - 1) * itensPorPaginaSimples;
+      const fim = inicio + itensPorPaginaSimples;
+      const pagina = lista.slice(inicio, fim);
+
+      tbody.innerHTML = pagina.map(produto => {
+        // Verifica se está em alerta de estoque
+        const alertaEstoque = produto.estoque_atual !== null && produto.estoque_minimo !== null && produto.estoque_atual <= produto.estoque_minimo;
+        const estoqueAtual = produto.estoque_atual ?? 0;
+        
+        return `
+          <tr>
+            <td>
+              ${produto.sku}
+              ${alertaEstoque ? '<i class="bi bi-exclamation-triangle-fill text-warning ms-1" title="Estoque baixo"></i>' : ''}
+            </td>
+            <td>${produto.nome}</td>
+            <td>${produto.categoria || '-'}</td>
+            <td>${produto.localizacao_fisica || '-'}</td>
+            <td>
+              <span class="badge ${alertaEstoque ? 'bg-warning text-dark' : estoqueAtual > 0 ? 'bg-success' : 'bg-secondary'}">
+                ${estoqueAtual}
+              </span>
+            </td>
+            <td class="text-center">
+              ${alertaEstoque 
+                ? '<span class="badge bg-warning text-dark"><i class="bi bi-exclamation-triangle"></i> Baixo</span>'
+                : estoqueAtual > 0 
+                  ? '<span class="badge bg-success"><i class="bi bi-check-circle"></i> OK</span>'
+                  : '<span class="badge bg-secondary"><i class="bi bi-x-circle"></i> Vazio</span>'
+              }
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      // Renderiza paginação
+      let htmlPaginacao = '';
+      if (totalPaginas > 1) {
+        htmlPaginacao += `<nav><ul class="pagination mb-0">`;
+        htmlPaginacao += `<li class="page-item${paginaAtualSimples === 1 ? ' disabled' : ''}">
+          <a class="page-link" href="#" data-pagina="${paginaAtualSimples - 1}">&laquo;</a></li>`;
+        
+        for (let i = 1; i <= totalPaginas; i++) {
+          htmlPaginacao += `<li class="page-item${i === paginaAtualSimples ? ' active' : ''}">
+            <a class="page-link" href="#" data-pagina="${i}">${i}</a></li>`;
+        }
+        
+        htmlPaginacao += `<li class="page-item${paginaAtualSimples === totalPaginas ? ' disabled' : ''}">
+          <a class="page-link" href="#" data-pagina="${paginaAtualSimples + 1}">&raquo;</a></li>`;
+        htmlPaginacao += `</ul></nav>`;
+      }
+      paginacao.innerHTML = htmlPaginacao;
+
+      // Eventos de paginação
+      paginacao.querySelectorAll('.page-link').forEach(link => {
+        link.onclick = function(e) {
+          e.preventDefault();
+          const pag = parseInt(this.getAttribute('data-pagina'));
+          if (!isNaN(pag) && pag >= 1 && pag <= totalPaginas && pag !== paginaAtualSimples) {
+            paginaAtualSimples = pag;
+            renderizarTabelaSimples(lista);
+          }
+        };
+      });
+    }
+
+    // Busca rápida para operadores
+    if (perfil === '1') {
+      document.getElementById('busca-rapida').addEventListener('input', function() {
+        const termo = this.value.trim().toLowerCase();
+        paginaAtualSimples = 1;
+        
+        if (termo) {
+          const filtrados = produtosSimples.filter(p =>
+            (p.nome && p.nome.toLowerCase().includes(termo)) ||
+            (p.sku && p.sku.toLowerCase().includes(termo)) ||
+            (p.categoria && p.categoria.toLowerCase().includes(termo))
+          );
+          renderizarTabelaSimples(filtrados);
+        } else {
+          renderizarTabelaSimples(produtosSimples);
+        }
+      });
+    }
+
+    // Eventos para dashboard (níveis 2 e 3)
+    if (perfil !== '1') {
       document.getElementById('dashboard-cards').addEventListener('click', function(e) {
         const btn = e.target.closest('a');
         if (!btn) return;

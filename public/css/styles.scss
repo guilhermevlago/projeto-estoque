@@ -479,3 +479,68 @@ a {
 #mais-entradas-container {
   margin: 0 !important; // remove qualquer margin do container "mais entradas"
 }
+
+// ===================
+// PÁGINA INÍCIO - OPERADORES
+// ===================
+#secao-operador {
+  .btn-lg {
+    padding: 1rem 1.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    i {
+      font-size: 1.3em;
+    }
+  }
+  
+  .table {
+    font-size: 0.95rem;
+    
+    th {
+      font-weight: 600;
+      background: #f8f9fa;
+      border-top: none;
+    }
+    
+    .badge {
+      font-size: 0.8rem;
+      padding: 0.35rem 0.6rem;
+      
+      i {
+        margin-right: 0.2rem;
+      }
+    }
+  }
+  
+  #busca-rapida {
+    border-radius: 0.5rem;
+    border: 1px solid #dee2e6;
+    transition: border-color 0.3s ease;
+    
+    &:focus {
+      border-color: var(--cor-primaria);
+      box-shadow: 0 0 0 0.2rem rgba(63, 37, 207, 0.1);
+    }
+  }
+}
+
+// Responsivo para seção do operador
+@media (max-width: 767.98px) {
+  #secao-operador {
+    .btn-lg {
+      font-size: 1rem;
+      padding: 0.8rem 1.2rem;
+    }
+    
+    .table {
+      font-size: 0.85rem;
+    }
+  }
+}
