@@ -11,12 +11,30 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
       placeholder.innerHTML = html;
+      filterMenuByProfile(); // Filtra menu por perfil
       setupSidebar();
       setupLogoutButton();
       highlightActiveNavItem();
     })
     .catch(err => console.error('Erro ao carregar navbar:', err));
 });
+
+function filterMenuByProfile() {
+  const perfil = localStorage.getItem('perfil');
+  if (!perfil) return;
+  
+  const menuItems = document.querySelectorAll('#sidebar .nav-item[data-perfil]');
+  
+  menuItems.forEach(item => {
+    const allowedProfiles = item.getAttribute('data-perfil').split(',');
+    
+    if (allowedProfiles.includes(perfil)) {
+      item.style.display = '';
+    } else {
+      item.style.display = 'none';
+    }
+  });
+}
 
 function setupSidebar() {
   const toggleButton = document.getElementById('toggle-sidebar');
