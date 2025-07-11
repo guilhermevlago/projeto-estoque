@@ -166,13 +166,18 @@
         return;
       }
 
+      // Ordena por nome antes de paginar
+      const listaOrdenada = [...lista].sort((a, b) => 
+        (a.nome || '').localeCompare(b.nome || '', 'pt-BR', { sensitivity: 'base' })
+      );
+
       // Paginação
-      const totalPaginas = Math.ceil(lista.length / itensPorPaginaUsuarios);
+      const totalPaginas = Math.ceil(listaOrdenada.length / itensPorPaginaUsuarios);
       if (paginaAtualUsuarios > totalPaginas) paginaAtualUsuarios = totalPaginas;
       if (paginaAtualUsuarios < 1) paginaAtualUsuarios = 1;
       const inicio = (paginaAtualUsuarios - 1) * itensPorPaginaUsuarios;
       const fim = inicio + itensPorPaginaUsuarios;
-      const pagina = lista.slice(inicio, fim);
+      const pagina = listaOrdenada.slice(inicio, fim);
 
       tbody.innerHTML = pagina.map(user => `
         <tr data-id="${user.id}">
